@@ -1,0 +1,36 @@
+# 1 "/home/hein/vsc_projects/UniverseSimulator/.vscode/tasks.json"
+# 1 "/usr/bin//"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 31 "<command-line>"
+# 1 "/usr/include/stdc-predef.h" 1 3 4
+# 32 "<command-line>" 2
+# 1 "/home/hein/vsc_projects/UniverseSimulator/.vscode/tasks.json"
+{
+ "version": "2.0.0",
+ "tasks": [
+  {
+   "type": "shell",
+   "label": "C/C++: cpp build active file",
+   "command": "/usr/bin/cpp",
+   "args": [
+    "-g",
+    "${file}",
+    "-o",
+    "${fileDirname}/${fileBasenameNoExtension}",
+    "-lSDL2",
+    "-lSDL2_image"
+   ],
+   "options": {
+    "cwd": "/usr/bin"
+   },
+   "problemMatcher": [
+    "$gcc"
+   ],
+   "group": {
+    "kind": "build",
+    "isDefault": true
+   }
+  }
+ ]
+}

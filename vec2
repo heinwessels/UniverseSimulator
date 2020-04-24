@@ -1,0 +1,43 @@
+# 1 "/home/hein/vsc_projects/UniverseSimulator/vec2.hpp"
+# 1 "/usr/bin//"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 31 "<command-line>"
+# 1 "/usr/include/stdc-predef.h" 1 3 4
+# 32 "<command-line>" 2
+# 1 "/home/hein/vsc_projects/UniverseSimulator/vec2.hpp"
+
+
+
+
+class Vec2 {
+
+    public:
+
+    float x, y;
+
+    Vec2(){}
+    Vec2(float i, float j) : x(i), y(j) {}
+
+    Vec2& operator += (const Vec2 & v){
+    x += v.x;
+    y += v.y;
+    return *this;
+    }
+    Vec2 operator + (const Vec2 &v){
+        Vec2 t (*this);
+        t += v;
+        return t;
+    }
+    Vec2& operator -= (const Vec2 & v){
+        x -= v.x;
+        y -= v.y;
+        return *this;
+    }
+    Vec2 operator - (const Vec2 &v){
+        Vec2 t (*this);
+        t -= v;
+        return t;
+    }
+
+};
