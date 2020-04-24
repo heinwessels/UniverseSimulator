@@ -3,9 +3,6 @@
 Universe::Universe(){
     printf("Universe Startup\n");
 
-    // Body moon (7.35e16f, Vec2f(0, 0));
-    // Body earth (5.972e18f, Vec2f(-384400.0f, 0.0));
-
     Body moon (7.35e22f, Vec2f(0, 0));
     Body earth (6e24f, Vec2f(-3.844e8f, 0.0));
 
@@ -21,7 +18,7 @@ Vec2f Universe::calculate_gravity_force_between(Body& this_body, Body& that_body
     r3 *=  sqrt(r3);
 
     // Calculate the absolute force divided by the distance
-    float f = 6.67e-11f * this_body.mass * that_body.mass / r3;
+    float f = g * this_body.mass * that_body.mass / r3;
 
     // Return it's components
     return Vec2f(f * dpos.x, f * dpos.y);    
