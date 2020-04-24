@@ -10,6 +10,36 @@ Universe::Universe(){
 }
 
 
+void Universe::step_through_bodies(){
+
+    int n = bodies.size();
+    static Vec2f forces [100];
+
+    // Step through the n bodies in O(n logn) to calculate the experienced gravitational forces
+    for (int i = 0; i < n; i++){
+        for (int j = i + 1; j < n; j++){
+            
+            // Is it neccesary to calculate the force between these two bodies?
+            if (!bodies.at(i).stationary || bodies.at(i).neglible 
+                    || !bodies.at(i).stationary || bodies.at(i).neglible){
+
+                // Calculate the force between the two bodies
+                Vec2f force = calculate_gravity_force_between(bodies.at(i), bodies.at(j));
+
+                // Apply the force to the body if it's not stationary (both of them) 
+                if (!bodies.at(i).stationary)
+                    forces[i] += force;
+                if (!bodies.at(j).stationary)
+                    forces[j] += Vec2f(-force.x,-force.y);  // Inverting it for the other body
+            }
+        }
+    }
+
+    // Apply the forces to all the bodies
+    for (int i = 0; i < n; i++)
+        bodies.at(i).apply_force(forces[i], time_step);
+}
+
 Vec2f Universe::calculate_gravity_force_between(Body& this_body, Body& that_body){
 
     // Calculate the distance cubed

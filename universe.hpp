@@ -11,16 +11,18 @@ using namespace std;
 
 class Universe {
 
-private:
+public:
+
+    float time_step = 60*60*24; 
 
     const float g = 6.67408e-11f; // In m^3 kg^(-1) s^(-2)
 
-public:
+    vector<Body> bodies;
+
     Universe();
 
-
+    void step_through_bodies();
     Vec2f calculate_gravity_force_between(Body& this_body, Body& that_body);
-
 };
 
 

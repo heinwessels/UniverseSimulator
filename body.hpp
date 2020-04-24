@@ -2,6 +2,7 @@
 #include "vec2f.hpp"
 #include "vec2l.hpp"
 #include <stdio.h>
+#include <cmath>
 
 #ifndef BODY_HPP
 #define BODY_HPP
@@ -12,8 +13,8 @@ class Body{
 
     public:
 
-    bool attracted;
-    bool attractable;
+    bool neglible;
+    bool stationary;
     float mass;         // In kg
     int radius;         // In meter
     Vec2f pos;          // In meter
@@ -21,6 +22,8 @@ class Body{
 
     Body();
     Body(float mass, Vec2f pos);
+
+    void apply_force(Vec2f force, float time_step);
 };
 
 
