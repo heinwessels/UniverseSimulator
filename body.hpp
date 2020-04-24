@@ -1,5 +1,6 @@
 #include <vector> 
 #include "vec2f.hpp"
+#include "vec2l.hpp"
 #include <stdio.h>
 
 #ifndef BODY_HPP
@@ -13,13 +14,13 @@ class Body{
 
     bool attracted;
     bool attractable;
-    int mass;
-    int radius;
-    Vec2f pos;
-    Vec2f speed;
+    float mass;         // In kg
+    int radius;         // In meter
+    Vec2f pos;          // In meter
+    Vec2f speed;        // In m / s
 
     Body();
-    Body(int mass);
+    Body(float mass, Vec2f pos);
 };
 
 

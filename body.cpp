@@ -2,4 +2,4 @@
 
 Body::Body(){}
 
-Body::Body(int mass) : mass(mass) {}
+Body::Body(float mass, Vec2f pos) : mass(mass), pos(pos) {}
