@@ -15,13 +15,10 @@ class Universe {
 
 public:
 
-    float time_step = 60*60; 
+    float time_step = 1; 
 
-    const float g = 6.67408e-11f; // In m^3 kg^(-1) s^(-2)
-
-    int screenWidth = 640;
-    int screenHeight = 480;
-    float screenScale = 2e6;
+    int screenWidth = 700;
+    int screenHeight = 700;
     SDL_Window *gWindow;
     SDL_Renderer *gRenderer;
 

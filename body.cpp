@@ -13,4 +13,7 @@ void Body::apply_force(Vec2f force, float time_step){
     Vec2f acceleration = force / Vec2f(mass, mass);
     speed += acceleration * time;
     pos += speed * time - Vec2f(0.5, 0.5) * acceleration * time * time;
+
+
+    
 }
