@@ -2,6 +2,7 @@
     "files.associations": {
         "vector": "cpp",
         "cmath": "cpp",
-        "complex": "cpp"
+        "complex": "cpp",
+        "tuple": "cpp"
     }
 }

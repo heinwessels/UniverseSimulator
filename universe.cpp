@@ -3,12 +3,23 @@
 Universe::Universe(){
     printf("Universe Startup\n");
 
+    gRenderer = NULL;
+    gWindow = NULL;
+
     Body moon (7.35e22f, Vec2f(0, 0));
     Body earth (6e24f, Vec2f(-3.844e8f, 0.0));
 
     printf("%.5f x 10^20 N\n", calculate_gravity_force_between(moon, earth).x / 1e20f);
+
+
+    screen_init();
+    while(step_universe()){}
 }
 
+bool Universe::step_universe(){
+
+    return screen_render();
+}
 
 void Universe::step_through_bodies(){
 
@@ -52,4 +63,75 @@ Vec2f Universe::calculate_gravity_force_between(Body& this_body, Body& that_body
 
     // Return it's components
     return Vec2f(f * dpos.x, f * dpos.y);    
+}
+
+
+bool Universe::screen_render(){
+    SDL_GetKeyboardState(NULL);
+
+    static bool left_pressed_down = false;
+    static bool right_pressed_down = false;
+
+    SDL_Event event;
+    while(SDL_PollEvent( &event ))
+    {
+        //User requests quit
+        if( event.type == SDL_QUIT )
+        {
+            return false;
+        }            
+    }
+
+    return true;
+}
+
+bool Universe::screen_init(){
+    bool success = true;
+
+        if (SDL_Init(SDL_INIT_VIDEO) < 0)
+        {
+            printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+            success = false;
+        }
+        else
+        {
+            //Set texture filtering to linear
+            if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
+            {
+                printf("Warning: Linear texture filtering not enabled!");
+            }
+
+            //Create window
+            gWindow = SDL_CreateWindow("Universe Simulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);
+            if (gWindow == NULL)
+            {
+                printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
+                success = false;
+            }
+            else
+            {
+                //Create renderer for window
+                gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+                if (gRenderer == NULL)
+                {
+                    printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
+                    success = false;
+                }
+                else
+                {
+                    //Initialize renderer color
+                    SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+
+                    //Initialize PNG loading
+                    int imgFlags = IMG_INIT_PNG;
+                    if (!(IMG_Init(imgFlags) & imgFlags))
+                    {
+                        printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+                        success = false;
+                    }
+                }
+            }
+        }
+
+        return success;
 }
