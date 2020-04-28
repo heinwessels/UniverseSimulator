@@ -9,7 +9,7 @@ Universe::Universe(){
     Body sun (250, 50, Vec2f(screenWidth / 2, screenHeight / 2));
     sun.stationary = true;
 
-    Body earth (1, 5, Vec2f(screenWidth / 2 + 250, screenHeight / 2));
+    Body earth (0.1, 5, Vec2f(screenWidth / 2 + 250, screenHeight / 2));
     earth.speed = Vec2f(0, 1);
 
     bodies.push_back(earth);
@@ -22,7 +22,7 @@ Universe::Universe(){
 
 bool Universe::step_universe(){
 
-    SDL_Delay(1);
+    // SDL_Delay(1);
 
     step_through_bodies();
     return screen_render();
