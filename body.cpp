@@ -2,7 +2,7 @@
 
 Body::Body(){}
 
-Body::Body(float mass, Vec2f pos) : mass(mass), pos(pos) {}
+Body::Body(float mass, float radius, Vec2f pos) : mass(mass), radius(radius), pos(pos) {}
 
 
 

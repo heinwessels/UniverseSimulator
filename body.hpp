@@ -21,7 +21,7 @@ class Body{
     Vec2f speed;        // In m / s
 
     Body();
-    Body(float mass, Vec2f pos);
+    Body(float mass, float radius, Vec2f pos);
 
     void apply_force(Vec2f force, float time_step);
 };

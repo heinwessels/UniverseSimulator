@@ -6,18 +6,29 @@ Universe::Universe(){
     gRenderer = NULL;
     gWindow = NULL;
 
-    Body moon (7.35e22f, Vec2f(0, 0));
-    Body earth (6e24f, Vec2f(-3.844e8f, 0.0));
+    Body moon (7.35e22f, 1737e3, Vec2f(3.844e8f, 0));
+    moon.speed = Vec2f(0, 1022);
+
+    Body earth (6e24f, 6371e3, Vec2f(0, 0.0));
+
+    bodies.push_back(moon);
+    bodies.push_back(earth);
 
     printf("%.5f x 10^20 N\n", calculate_gravity_force_between(moon, earth).x / 1e20f);
 
+    printf("[%d, %d] \n", int(earth.pos.x / screenScale + screenWidth / 2.0), int(earth.pos.y / screenScale + screenHeight / 2.0));
+    printf("[%d, %d] \n", int(moon.pos.x / screenScale + screenWidth / 2.0), int(moon.pos.y / screenScale + screenHeight / 2.0));
 
     screen_init();
+    screen_render();
     while(step_universe()){}
 }
 
 bool Universe::step_universe(){
 
+    SDL_Delay(200);
+
+    step_through_bodies();
     return screen_render();
 }
 
@@ -39,9 +50,12 @@ void Universe::step_through_bodies(){
 
                 // Apply the force to the body if it's not stationary (both of them) 
                 if (!bodies.at(i).stationary)
-                    forces[i] += force;
+                    forces[i] -= force;
                 if (!bodies.at(j).stationary)
-                    forces[j] += Vec2f(-force.x,-force.y);  // Inverting it for the other body
+                    forces[j] += force;  // Inverting it for the other body
+
+
+                printf("%f\t\t%f\n", force.x, force.y);
             }
         }
     }
@@ -67,6 +81,31 @@ Vec2f Universe::calculate_gravity_force_between(Body& this_body, Body& that_body
 
 
 bool Universe::screen_render(){
+
+    // Clear Screen        
+    SDL_SetRenderDrawColor( gRenderer, 0, 0, 0, 0 );
+    SDL_RenderClear(gRenderer);
+
+    // Draw the bodies
+    SDL_SetRenderDrawColor( gRenderer, 255, 0, 0, 0 );
+    for (Body& body : bodies){
+        /*SDL_RenderDrawPoint(gRenderer, 
+                body.pos.x / screenScale + screenWidth / 2.0,
+                body.pos.y / screenScale + screenHeight / 2.0
+                );*/
+        
+        SDL_Rect rect;
+        rect.x = (body.pos.x - body.radius) / screenScale + screenWidth / 2.0;
+        rect.y = (body.pos.y - body.radius) / screenScale + screenHeight / 2.0;
+        rect.w = body.radius * 2 / screenScale + 1;
+        rect.h = body.radius * 2 / screenScale + 1;
+        SDL_RenderFillRect(gRenderer, &rect);
+    }   
+
+    // Update the screen
+    SDL_RenderPresent( gRenderer );
+
+    // Handle Input
     SDL_GetKeyboardState(NULL);
 
     static bool left_pressed_down = false;
