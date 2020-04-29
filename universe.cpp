@@ -6,14 +6,18 @@ Universe::Universe(){
     gRenderer = NULL;
     gWindow = NULL;
 
-    Body sun (250, 50, Vec2f(screenWidth / 2, screenHeight / 2));
-    sun.stationary = true;
+    Body sun (250, 20, Vec2f(screenWidth / 2, screenHeight / 2));
 
-    Body earth (0.1, 5, Vec2f(screenWidth / 2 + 250, screenHeight / 2));
-    earth.speed = Vec2f(0, 1.5);
+    Body earth (1, 5, Vec2f(screenWidth / 2 + 250, screenHeight / 2));
+    earth.speed = Vec2f(0, 1);
+
+
+    Body moon (1, 5, Vec2f(screenWidth / 2 + 250, screenHeight / 2 + 40));
+    moon.speed = Vec2f(0, 1);
 
     bodies.push_back(earth);
     bodies.push_back(sun);
+    bodies.push_back(moon);
 
     screen_init();
     screen_render();

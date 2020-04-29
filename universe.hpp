@@ -15,12 +15,12 @@ class Universe {
 
 public:
 
-    float time_step = 0.01; 
+    float time_step = 0.1; 
     float delay = 0;  // in ms
 
-    int render_frame = 30;
-    int screenWidth = 700;
-    int screenHeight = 700;
+    int render_frame = 100;
+    int screenWidth = 1000;
+    int screenHeight = 1000;
     SDL_Window *gWindow;
     SDL_Renderer *gRenderer;
     
