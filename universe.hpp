@@ -15,12 +15,17 @@ class Universe {
 
 public:
 
-    float time_step = 1; 
+    float time_step = 0.01; 
+    float delay = 0;  // in ms
 
+    int render_frame = 30;
     int screenWidth = 700;
     int screenHeight = 700;
     SDL_Window *gWindow;
     SDL_Renderer *gRenderer;
+    
+    bool show_force_on_body = false;
+    bool show_acc_on_body = false;
 
     vector<Body> bodies;
 

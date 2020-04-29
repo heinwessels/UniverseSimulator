@@ -20,6 +20,9 @@ class Body{
     Vec2f pos;          // In meter
     Vec2f speed;        // In m / s
 
+    Vec2f last_force;
+    Vec2f last_acc;
+
     Body();
     Body(float mass, float radius, Vec2f pos);
 

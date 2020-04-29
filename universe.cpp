@@ -10,7 +10,7 @@ Universe::Universe(){
     sun.stationary = true;
 
     Body earth (0.1, 5, Vec2f(screenWidth / 2 + 250, screenHeight / 2));
-    earth.speed = Vec2f(0, 1);
+    earth.speed = Vec2f(0, 1.5);
 
     bodies.push_back(earth);
     bodies.push_back(sun);
@@ -22,9 +22,14 @@ Universe::Universe(){
 
 bool Universe::step_universe(){
 
-    // SDL_Delay(1);
+    static unsigned int frame_count = 0;
+
+    if (delay != 0)
+        SDL_Delay(delay);
 
     step_through_bodies();
+
+    // return !(frame_count++ % render_frame) ? screen_render() : true;
     return screen_render();
 }
 
@@ -33,15 +38,15 @@ void Universe::step_through_bodies(){
     int n = bodies.size();
     static Vec2f forces [100];
 
+    // Clear forces array
+    for (int i = 0; i < n; i++){
+        forces[i].x = 0;
+        forces[i].y = 0;
+    }
+
     // Step through the n bodies in O(n logn) to calculate the experienced gravitational forces
-    forces[0] = Vec2f();
     for (int i = 0; i < n; i++){
         for (int j = i + 1; j < n; j++){
-            
-            // Clear the array
-            if (!i){
-                forces[j] = Vec2f();
-            }
 
             // Is it neccesary to calculate the force between these two bodies?
             if (!bodies.at(i).stationary || bodies.at(i).neglible 
@@ -87,19 +92,39 @@ bool Universe::screen_render(){
     SDL_RenderClear(gRenderer);
 
     // Draw the bodies
-    SDL_SetRenderDrawColor( gRenderer, 255, 0, 0, 0 );
     for (Body& body : bodies){
-        /*SDL_RenderDrawPoint(gRenderer, 
-                body.pos.x / screenScale + screenWidth / 2.0,
-                body.pos.y / screenScale + screenHeight / 2.0
-                );*/
         
         SDL_Rect rect;
         rect.x = body.pos.x - body.radius;
         rect.y = body.pos.y - body.radius;
         rect.w = body.radius * 2 + 1;
         rect.h = body.radius * 2 + 1;
+        SDL_SetRenderDrawColor( gRenderer, 255, 0, 0, 0 );
         SDL_RenderFillRect(gRenderer, &rect);
+
+        if (show_force_on_body && body.last_force.x != 0){
+            float f = sqrt(pow(body.last_force.x, 2) + pow(body.last_force.y, 2));
+            SDL_SetRenderDrawColor( gRenderer, 0, 255, 0, 0 );
+            SDL_RenderDrawLine(
+                gRenderer,
+                body.pos.x,
+                body.pos.y,
+                body.pos.x + 3 * body.radius * body.last_force.x / f,
+                body.pos.y + 3 * body.radius * body.last_force.y / f 
+            );
+        }
+
+        if (show_acc_on_body && body.last_acc.x != 0){
+            float a = sqrt(pow(body.last_acc.x, 2) + pow(body.last_acc.y, 2));
+            SDL_SetRenderDrawColor( gRenderer, 0, 0, 255, 0 );
+            SDL_RenderDrawLine(
+                gRenderer,
+                body.pos.x,
+                body.pos.y,
+                body.pos.x + 3 * body.radius * body.last_acc.x / a,
+                body.pos.y + 3 * body.radius * body.last_acc.y / a 
+            );
+        }
     }   
 
     // Update the screen
