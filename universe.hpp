@@ -18,7 +18,7 @@ public:
     float time_step = 0.1; 
     float delay = 0;  // in ms
 
-    int render_frame = 100;
+    int render_frame = 2;
     int screenWidth = 1000;
     int screenHeight = 1000;
     SDL_Window *gWindow;
@@ -29,13 +29,18 @@ public:
 
     vector<Body> bodies;
 
+    enum UniverseState {idle, running, single_step};
+    UniverseState state = idle;
+
     Universe();
 
     bool step_universe();
     void step_through_bodies();
+    void check_for_collisions_and_combine();
     Vec2f calculate_gravity_force_between(Body& this_body, Body& that_body);
 
-    bool screen_render();
+    void screen_render();
+    bool handle_input();
     bool screen_init();
 };
 

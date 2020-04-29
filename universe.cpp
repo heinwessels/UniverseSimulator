@@ -3,20 +3,21 @@
 Universe::Universe(){
     printf("Universe Startup\n");
 
+    state = idle;
+
     gRenderer = NULL;
     gWindow = NULL;
 
     Body sun (250, 20, Vec2f(screenWidth / 2, screenHeight / 2));
 
-    Body earth (1, 5, Vec2f(screenWidth / 2 + 250, screenHeight / 2));
+    Body earth (10, 5, Vec2f(screenWidth / 2 + 250, screenHeight / 2));
     earth.speed = Vec2f(0, 1);
 
-
-    Body moon (1, 5, Vec2f(screenWidth / 2 + 250, screenHeight / 2 + 40));
+    Body moon (10, 5, Vec2f(screenWidth / 2 - 250, screenHeight / 2));
     moon.speed = Vec2f(0, 1);
 
-    bodies.push_back(earth);
     bodies.push_back(sun);
+    bodies.push_back(earth);
     bodies.push_back(moon);
 
     screen_init();
@@ -31,10 +32,20 @@ bool Universe::step_universe(){
     if (delay != 0)
         SDL_Delay(delay);
 
-    step_through_bodies();
+    if (state == running || state == single_step){
+        step_through_bodies();
+        check_for_collisions_and_combine();
+        
+        if (state == single_step){
+            printf("IDLE\n");
+            state = idle;
+        }
+    }
 
-    // return !(frame_count++ % render_frame) ? screen_render() : true;
-    return screen_render();
+    if(!(frame_count++ % render_frame))
+        screen_render();
+
+    return handle_input();
 }
 
 void Universe::step_through_bodies(){
@@ -74,6 +85,36 @@ void Universe::step_through_bodies(){
             bodies.at(i).apply_force(forces[i], time_step);
 }
 
+void Universe::check_for_collisions_and_combine(){
+    int i = 0, j = 0;
+    while(i < bodies.size()){
+        j = i+1;
+        while(j < bodies.size()){
+            
+            Vec2f delta = bodies.at(i).pos - bodies.at(j).pos;
+            float d2 = pow(delta.x, 2) + pow(delta.y, 2);
+            if(d2 < pow(bodies.at(i).radius + bodies.at(j).radius, 2)){
+                // Collision!
+
+                printf("Collision!\n");
+
+                // Combine the bodies
+                Vec2f mi = Vec2f(bodies.at(i).mass, bodies.at(i).mass);
+                Vec2f mj = Vec2f(bodies.at(j).mass, bodies.at(j).mass);
+                bodies.at(i).radius = sqrt(pow(bodies.at(i).radius, 2) + pow(bodies.at(j).radius, 2));
+                bodies.at(i).mass += bodies.at(j).mass;
+                bodies.at(i).speed = (bodies.at(i).speed * mi + bodies.at(j).speed * mj) / (mi + mj);
+                bodies.at(i).pos = (bodies.at(i).pos + bodies.at(j).pos) / Vec2f(2.0, 2.0);
+                bodies.erase(bodies.begin() + j);
+            }
+
+            j++;
+        }
+
+        i++;
+    }
+}
+
 Vec2f Universe::calculate_gravity_force_between(Body& this_body, Body& that_body){
 
     // Calculate the distance cubed
@@ -88,8 +129,7 @@ Vec2f Universe::calculate_gravity_force_between(Body& this_body, Body& that_body
     return Vec2f(f * dpos.x, f * dpos.y);    
 }
 
-
-bool Universe::screen_render(){
+void Universe::screen_render(){
 
     // Clear Screen        
     SDL_SetRenderDrawColor( gRenderer, 0, 0, 0, 0 );
@@ -133,7 +173,9 @@ bool Universe::screen_render(){
 
     // Update the screen
     SDL_RenderPresent( gRenderer );
+}
 
+bool Universe::handle_input(){
     // Handle Input
     SDL_GetKeyboardState(NULL);
 
@@ -148,6 +190,23 @@ bool Universe::screen_render(){
         {
             return false;
         }            
+
+        if (event.type == SDL_KEYDOWN){
+            if (event.key.keysym.sym == SDLK_s){
+                if (state == idle){
+                    printf("RUNNING\n");
+                    state = running;
+                }                    
+                else if (state == running){
+                    state = idle;
+                    printf("IDLE\n");
+                }                    
+            }
+            if (event.key.keysym.sym == SDLK_SPACE){
+                state = single_step;
+                printf("SINGLE STEP\n");
+            }
+        }
     }
 
     return true;

@@ -3,6 +3,7 @@
 Body::Body(){}
 
 Body::Body(float mass, float radius, Vec2f pos) : mass(mass), radius(radius), pos(pos) {
+    speed = Vec2f(0, 0);
     last_force = Vec2f(0, 0);
     last_acc = Vec2f(0, 0);
 }
