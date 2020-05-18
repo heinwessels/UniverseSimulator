@@ -3,7 +3,7 @@
     "tasks": [
         {
             "type": "shell",
-            "label": "C/C++: g++ build active file",
+            "label": "C/C++: g++ build (C++14)",
             "command": "/usr/bin/g++",
             "args": [
                 "-g",
@@ -18,26 +18,30 @@
             },
             "problemMatcher": [
                 "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
+            ]
         },
         {
             "type": "shell",
-            "label": "g++ build active file",
-            "command": "/usr/bin/g++",
+            "label": "shell: clang++-6.0 build (C++17)",
+            "command": "/usr/bin/clang++-6.0",
             "args": [
                 "-g",
                 "${fileDirname}/*.cpp",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}",
-				"-lSDL2",
-				"-lSDL2_image"
+                "${fileDirname}/run17.exe",
+                "-lSDL2",
+                "-lSDL2_image",
+                "-std=c++17"
             ],
             "options": {
                 "cwd": "/usr/bin"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
             }
         }
     ]

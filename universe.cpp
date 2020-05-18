@@ -16,9 +16,9 @@ Universe::Universe(){
     Body moon (10, 5, Vec2f(screenWidth / 2 - 250, screenHeight / 2));
     moon.speed = Vec2f(0, 1);
 
-    bodies.push_back(sun);
-    bodies.push_back(earth);
+    bodies.push_back(sun);    
     bodies.push_back(moon);
+    bodies.push_back(earth);
 
     screen_init();
     screen_render();
@@ -67,7 +67,7 @@ void Universe::step_through_bodies(){
             if (!bodies.at(i).stationary || bodies.at(i).neglible 
                     || !bodies.at(i).stationary || bodies.at(i).neglible){
 
-                // Calculate the force between the two bodies
+                // Calculate the force betwe en the two bodies
                 Vec2f force = calculate_gravity_force_between(bodies.at(i), bodies.at(j));
 
                 // Apply the force to the body if it's not stationary (both of them) 
@@ -210,6 +210,10 @@ bool Universe::handle_input(){
     }
 
     return true;
+}
+
+void Universe::init_random_bodies(){
+
 }
 
 bool Universe::screen_init(){
