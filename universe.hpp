@@ -29,6 +29,7 @@ public:
     
     bool show_force_on_body = false;
     bool show_acc_on_body = false;
+    bool show_speed_on_body = true;
 
     vector<Body> bodies;
 

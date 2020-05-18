@@ -16,9 +16,11 @@ Universe::Universe(){
     Body moon (10, 5, Vec2f(screenWidth / 2 - 250, screenHeight / 2));
     moon.speed = Vec2f(0, 1);
 
-    bodies.push_back(sun);    
-    bodies.push_back(moon);
-    bodies.push_back(earth);
+    // bodies.push_back(sun);    
+    // bodies.push_back(moon);
+    // bodies.push_back(earth);
+
+    init_random_bodies();
 
     screen_init();
     screen_render();
@@ -169,6 +171,18 @@ void Universe::screen_render(){
                 body.pos.y + 3 * body.radius * body.last_acc.y / a 
             );
         }
+
+        if (show_speed_on_body){
+            float s = sqrt(pow(body.speed.x, 2) + pow(body.speed.y, 2));
+            SDL_SetRenderDrawColor( gRenderer, 0, 0, 255, 0 );
+            SDL_RenderDrawLine(
+                gRenderer,
+                body.pos.x,
+                body.pos.y,
+                body.pos.x + 3 * body.radius * body.speed.x / s,
+                body.pos.y + 3 * body.radius * body.speed.y / s 
+            );
+        }
     }   
 
     // Update the screen
@@ -213,6 +227,70 @@ bool Universe::handle_input(){
 }
 
 void Universe::init_random_bodies(){
+
+    uint32_t seed = 82;
+
+    // std::cout << "---------------------------------\n";
+	// std::cout << "* frequency [0.1 .. 8.0 .. 64.0] \n";
+	// std::cout << "* octaves   [1 .. 8 .. 16]       \n";
+	// std::cout << "* seed      [0 .. 2^32-1]        \n";
+	// std::cout << "---------------------------------\n";
+    // perlin.accumulatedOctaveNoise2D_0_1(x / fx, y / fy, octaves)
+
+    double size_frequency = 20;
+    double size_octaves = 4;
+    const siv::PerlinNoise size_perlin(seed);    
+    const double size_fx = screenWidth / size_frequency;
+    const double size_fy = screenHeight / size_frequency;
+
+    double speed_frequency = 20;
+    double speed_octaves = 3;
+    const siv::PerlinNoise speed_perlin(seed);    
+    const double speed_fx = screenWidth / speed_frequency;
+    const double speed_fy = screenHeight / speed_frequency;
+
+    double density = 0.2;    
+    double minimim_radius = 10;
+    double maximum_radius = 20;
+    double spacing_multiplier = 7;
+    double speed_multiplier = 20;
+
+    int offset = 30;
+    int x = offset, y = offset;
+    while (y < screenHeight - offset){       
+        
+        double size_randomizer = size_perlin.normalizedOctaveNoise2D(x / size_fx, y / size_fy, size_octaves);        
+        double radius = (size_randomizer + 1) * maximum_radius / 2;
+        if (radius > minimim_radius && size_randomizer > 0){
+            Body body (
+                M_PI*radius*radius*density, 
+                radius,         
+                Vec2f(x, y));
+
+            double speed_randomizer = speed_perlin.normalizedOctaveNoise2D(x / speed_fx, y / speed_fy, speed_octaves);
+            body.speed = Vec2f(
+                sin(speed_randomizer * M_PI * 2) * size_randomizer * speed_multiplier, 
+                cos(speed_randomizer * M_PI * 2) * size_randomizer * speed_multiplier
+            );
+            
+            bodies.push_back(body);
+
+
+            printf("[%d, %d]:\n\tRadius: %.3f\n\tSpeed Rand: %.3f\n", x, y, radius, speed_randomizer);     
+            
+        }
+        else
+        {
+            radius = minimim_radius;
+        }
+
+        x += spacing_multiplier * radius;
+        if(x >= screenWidth - offset){
+            x = offset;
+            y += radius * spacing_multiplier;
+        }
+    }
+
 
 }
 
