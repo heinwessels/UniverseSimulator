@@ -1,4 +1,4 @@
-#include <vector> 
+#include <vector>
 #include "vec2f.hpp"
 #include "body.hpp"
 #include <stdio.h>
@@ -18,18 +18,18 @@ class Universe {
 
 public:
 
-    float time_step = 0.1; 
+    float time_step = 0.1;
     float delay = 0;  // in ms
 
-    int render_frame = 2;
+    int render_frame = 10;
     int screenWidth = 1000;
     int screenHeight = 1000;
     SDL_Window *gWindow;
     SDL_Renderer *gRenderer;
-    
+
     bool show_force_on_body = false;
     bool show_acc_on_body = false;
-    bool show_speed_on_body = true;
+    bool show_speed_on_body = false;
 
     vector<Body> bodies;
 
