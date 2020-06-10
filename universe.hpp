@@ -1,5 +1,5 @@
 #include <vector>
-#include "vec2f.hpp"
+#include "vec3.hpp"
 #include "body.hpp"
 #include <stdio.h>
 #include<iostream>
@@ -41,7 +41,7 @@ public:
     bool step_universe();
     void step_through_bodies();
     void check_for_collisions_and_combine();
-    Vec2f calculate_gravity_force_between(Body& this_body, Body& that_body);
+    Vec3<float> calculate_gravity_force_between(Body& this_body, Body& that_body);
     void init_random_bodies();
 
     void screen_render();

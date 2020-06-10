@@ -8,19 +8,19 @@ Universe::Universe(){
     gRenderer = NULL;
     gWindow = NULL;
 
-    Body sun (250, 20, Vec2f(screenWidth / 2, screenHeight / 2));
+    Body sun (250, 20, Vec3<float>(screenWidth / 2, screenHeight / 2, 0));
 
-    Body earth (10, 5, Vec2f(screenWidth / 2 + 250, screenHeight / 2));
-    earth.speed = Vec2f(0, 1);
+    Body earth (10, 5, Vec3<float>(screenWidth / 2 + 250, screenHeight / 2, 0));
+    earth.speed = Vec3<float>(0, 1, 0);
 
-    Body moon (10, 5, Vec2f(screenWidth / 2 - 250, screenHeight / 2));
-    moon.speed = Vec2f(0, 1);
+    Body moon (10, 5, Vec3<float>(screenWidth / 2 - 250, screenHeight / 2, 0));
+    moon.speed = Vec3<float>(0, 1, 0);
 
-    // bodies.push_back(sun);
-    // bodies.push_back(moon);
-    // bodies.push_back(earth);
+    bodies.push_back(sun);
+    bodies.push_back(moon);
+    bodies.push_back(earth);
 
-    init_random_bodies();
+    // init_random_bodies();
 
     screen_init();
     screen_render();
@@ -53,7 +53,7 @@ bool Universe::step_universe(){
 void Universe::step_through_bodies(){
 
     int n = bodies.size();
-    static Vec2f forces [2000];
+    static Vec3<float> forces [2000];
 
     // Clear forces array
     for (int i = 0; i < n; i++){
@@ -70,7 +70,7 @@ void Universe::step_through_bodies(){
                     || !bodies.at(i).stationary || bodies.at(i).neglible){
 
                 // Calculate the force betwe en the two bodies
-                Vec2f force = calculate_gravity_force_between(bodies.at(i), bodies.at(j));
+                Vec3<float> force = calculate_gravity_force_between(bodies.at(i), bodies.at(j));
 
                 // Apply the force to the body if it's not stationary (both of them)
                 if (!bodies.at(i).stationary)
@@ -93,20 +93,18 @@ void Universe::check_for_collisions_and_combine(){
         j = i+1;
         while(j < bodies.size()){
 
-            Vec2f delta = bodies.at(i).pos - bodies.at(j).pos;
+            Vec3<float> delta = bodies.at(i).pos - bodies.at(j).pos;
             float d2 = pow(delta.x, 2) + pow(delta.y, 2);
             if(d2 < pow(bodies.at(i).radius + bodies.at(j).radius, 2)){
                 // Collision!
 
-                printf("Collision!\n");
-
                 // Combine the bodies
-                Vec2f mi = Vec2f(bodies.at(i).mass, bodies.at(i).mass);
-                Vec2f mj = Vec2f(bodies.at(j).mass, bodies.at(j).mass);
+                Vec3<float> mi = Vec3<float>(bodies.at(i).mass, bodies.at(i).mass, 0);
+                Vec3<float> mj = Vec3<float>(bodies.at(j).mass, bodies.at(j).mass, 0);
                 bodies.at(i).radius = sqrt(pow(bodies.at(i).radius, 2) + pow(bodies.at(j).radius, 2));
                 bodies.at(i).mass += bodies.at(j).mass;
                 bodies.at(i).speed = (bodies.at(i).speed * mi + bodies.at(j).speed * mj) / (mi + mj);
-                bodies.at(i).pos = (bodies.at(i).pos + bodies.at(j).pos) / Vec2f(2.0, 2.0);
+                bodies.at(i).pos = (bodies.at(i).pos + bodies.at(j).pos) / Vec3<float>(2.0, 2.0, 1);
                 bodies.erase(bodies.begin() + j);
             }
 
@@ -117,10 +115,10 @@ void Universe::check_for_collisions_and_combine(){
     }
 }
 
-Vec2f Universe::calculate_gravity_force_between(Body& this_body, Body& that_body){
+Vec3<float> Universe::calculate_gravity_force_between(Body& this_body, Body& that_body){
 
     // Calculate the distance cubed
-    Vec2f dpos = (that_body.pos - this_body.pos);
+    Vec3<float> dpos = (that_body.pos - this_body.pos);
     float r3 = pow(dpos.x, 2) + pow(dpos.y, 2);
     r3 *=  sqrt(r3);
 
@@ -128,7 +126,7 @@ Vec2f Universe::calculate_gravity_force_between(Body& this_body, Body& that_body
     float f = this_body.mass * that_body.mass / r3;
 
     // Return it's components
-    return Vec2f(f * dpos.x, f * dpos.y);
+    return Vec3<float>(f * dpos.x, f * dpos.y, 0);
 }
 
 void Universe::screen_render(){
@@ -228,7 +226,7 @@ bool Universe::handle_input(){
 
 void Universe::init_random_bodies(){
 
-    uint32_t seed = 825;
+    uint32_t seed = 8125;
     srand(seed);
 
     // std::cout << "---------------------------------\n";
@@ -245,8 +243,8 @@ void Universe::init_random_bodies(){
     const double size_fy = screenHeight / size_frequency;
 
     double speed_frequency = 20;
-    double speed_octaves = 3;
-    const siv::PerlinNoise speed_perlin(seed);
+    double speed_octaves = 4;
+    const siv::PerlinNoise speed_perlin(seed + 5);
     const double speed_fx = screenWidth / speed_frequency;
     const double speed_fy = screenHeight / speed_frequency;
 
@@ -266,13 +264,14 @@ void Universe::init_random_bodies(){
             Body body (
                 M_PI*radius*radius*density,
                 radius,
-                Vec2f(x, y));
+                Vec3<float>(x, y, 0));
 
-            // double speed_randomizer = speed_perlin.normalizedOctaveNoise2D(x / speed_fx, y / speed_fy, speed_octaves);
-            double speed_randomizer = (rand()%200)/100.0 - 1.0;
-            body.speed = Vec2f(
+            double speed_randomizer = speed_perlin.normalizedOctaveNoise2D(x / speed_fx, y / speed_fy, speed_octaves) / 0.1;
+            // double speed_randomizer = (rand()%200)/100.0 - 1.0;
+            body.speed = Vec3<float>(
                 sin(speed_randomizer * M_PI * 2) * size_randomizer * speed_multiplier,
-                cos(speed_randomizer * M_PI * 2) * size_randomizer * speed_multiplier
+                cos(speed_randomizer * M_PI * 2) * size_randomizer * speed_multiplier,
+                0
             );
 
             bodies.push_back(body);

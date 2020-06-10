@@ -1,6 +1,5 @@
-#include <vector> 
-#include "vec2f.hpp"
-#include "vec2l.hpp"
+#include <vector>
+#include "vec3.hpp"
 #include <stdio.h>
 #include <cmath>
 
@@ -17,16 +16,16 @@ class Body{
     bool stationary;
     float mass;         // In kg
     int radius;         // In meter
-    Vec2f pos;          // In meter
-    Vec2f speed;        // In m / s
+    Vec3<float> pos;          // In meter
+    Vec3<float> speed;        // In m / s
 
-    Vec2f last_force;
-    Vec2f last_acc;
+    Vec3<float> last_force;
+    Vec3<float> last_acc;
 
     Body();
-    Body(float mass, float radius, Vec2f pos);
+    Body(float mass, float radius, Vec3<float> pos);
 
-    void apply_force(Vec2f force, float time_step);
+    void apply_force(Vec3<float> force, float time_step);
 };
 
 
