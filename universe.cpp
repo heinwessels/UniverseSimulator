@@ -14,13 +14,13 @@ Universe::Universe(){
     earth.speed = Vec3<float>(0, 1, 0);
 
     Body moon (10, 5, Vec3<float>(screenWidth / 2 - 250, screenHeight / 2, 0));
-    moon.speed = Vec3<float>(0, 1, 0);
+    moon.speed = Vec3<float>(0, -1, 0);
 
-    bodies.push_back(sun);
-    bodies.push_back(moon);
-    bodies.push_back(earth);
+    // bodies.push_back(sun);
+    // bodies.push_back(moon);
+    // bodies.push_back(earth);
 
-    // init_random_bodies();
+    init_random_bodies();
 
     screen_init();
     screen_render();
@@ -104,7 +104,10 @@ void Universe::check_for_collisions_and_combine(){
                 bodies.at(i).radius = sqrt(pow(bodies.at(i).radius, 2) + pow(bodies.at(j).radius, 2));
                 bodies.at(i).mass += bodies.at(j).mass;
                 bodies.at(i).speed = (bodies.at(i).speed * mi + bodies.at(j).speed * mj) / (mi + mj);
-                bodies.at(i).pos = (bodies.at(i).pos + bodies.at(j).pos) / Vec3<float>(2.0, 2.0, 1);
+
+                bodies.at(i).pos = (bodies.at(i).pos + bodies.at(j).pos) / Vec3<float>(2.0);
+
+
                 bodies.erase(bodies.begin() + j);
             }
 

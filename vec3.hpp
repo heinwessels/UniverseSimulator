@@ -7,7 +7,8 @@ class Vec3 {
     public:
     T x, y, z;
 
-    Vec3(){};
+    Vec3() : x(0), y(0), z(0) {};
+    Vec3(T i) : x(i), y(i), z(i) {}
     Vec3(T i, T j, T k) : x(i), y(j), z(k) {}
 
     Vec3& operator += (const Vec3 & v){
