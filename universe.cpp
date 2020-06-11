@@ -13,8 +13,8 @@ Universe::Universe(){
     Body earth (10, 5, Vec3<float>(screenWidth / 2 + 250, screenHeight / 2, 0));
     earth.speed = Vec3<float>(0, 1, 0);
 
-    Body moon (10, 5, Vec3<float>(screenWidth / 2 - 250, screenHeight / 2 - 250, 0));
-    // moon.speed = Vec3<float>(0, -1, 0);
+    Body moon (10, 5, Vec3<float>(screenWidth / 2 - 250, screenHeight / 2, 0));
+    moon.speed = Vec3<float>(0, -1, 0);
 
     // bodies.push_back(moon);
     // bodies.push_back(sun);
@@ -79,12 +79,11 @@ void Universe::step_through_bodies(){
                     forces[j] -= force;  // Inverting it for the other body
             }
         }
-    }
 
-    // Apply the forces to all the bodies
-    for (int i = 0; i < n; i++)
+        // This will exectute only when all forces on this body has been accounted for
         if (!bodies.at(i).stationary)
             bodies.at(i).apply_force(forces[i], time_step);
+    }
 }
 
 void Universe::check_for_collisions_and_combine(){
