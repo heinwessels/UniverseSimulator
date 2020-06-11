@@ -13,11 +13,11 @@ Universe::Universe(){
     Body earth (10, 5, Vec3<float>(screenWidth / 2 + 250, screenHeight / 2, 0));
     earth.speed = Vec3<float>(0, 1, 0);
 
-    Body moon (10, 5, Vec3<float>(screenWidth / 2 - 250, screenHeight / 2, 0));
-    moon.speed = Vec3<float>(0, -1, 0);
+    Body moon (10, 5, Vec3<float>(screenWidth / 2 - 250, screenHeight / 2 - 250, 0));
+    // moon.speed = Vec3<float>(0, -1, 0);
 
-    // bodies.push_back(sun);
     // bodies.push_back(moon);
+    // bodies.push_back(sun);
     // bodies.push_back(earth);
 
     init_random_bodies();
@@ -93,20 +93,24 @@ void Universe::check_for_collisions_and_combine(){
         j = i+1;
         while(j < bodies.size()){
 
-            Vec3<float> delta = bodies.at(i).pos - bodies.at(j).pos;
+            Vec3<float> delta = bodies.at(j).pos - bodies.at(i).pos;
             float d2 = pow(delta.x, 2) + pow(delta.y, 2);
             if(d2 < pow(bodies.at(i).radius + bodies.at(j).radius, 2)){
-                // Collision!
+                // Collision! Combine the bodies!
 
-                // Combine the bodies
+                // Calculate the new location using the CoM of the two bodies (assuming equal density)
+                float dr = static_cast<float>(bodies.at(i).radius + bodies.at(j).radius)
+                        / static_cast<float>(pow(bodies.at(i).radius, 2)/pow(bodies.at(j).radius, 2) + 1);
+                bodies.at(i).pos += delta / Vec3<float>(sqrt(d2) / dr);
+
+                // Calculate the new radius adding the masses of the two bodies (assuming equal density)
                 Vec3<float> mi = Vec3<float>(bodies.at(i).mass, bodies.at(i).mass, 0);
                 Vec3<float> mj = Vec3<float>(bodies.at(j).mass, bodies.at(j).mass, 0);
                 bodies.at(i).radius = sqrt(pow(bodies.at(i).radius, 2) + pow(bodies.at(j).radius, 2));
                 bodies.at(i).mass += bodies.at(j).mass;
+
+                // Calculate speed using law of conservation of energy
                 bodies.at(i).speed = (bodies.at(i).speed * mi + bodies.at(j).speed * mj) / (mi + mj);
-
-                bodies.at(i).pos = (bodies.at(i).pos + bodies.at(j).pos) / Vec3<float>(2.0);
-
 
                 bodies.erase(bodies.begin() + j);
             }
