@@ -18,12 +18,10 @@ An universe simulator I'm building to learn C++. It will have a n-body gravitati
 - Gravity is calculated as a 3D force, since in 2D stable orbits isn't possible (it creates a flower pattern, instead of conic sections).
 - Uses Perlin Noise to generate a random gas cloud, i.e. bodies with random mass, location and speed. Using Perlin noise ensures basicaly creates clusters of bodies with similar speed and mass, mimicing a steady state gas cloud where clusters of gas are moving in mostly the same direction (probably).  The hope is that it would help create orbiting bodies, instead of all bodies simply collapsing into a single star.
 - Ability to start/stop/single-step the simulation.
-- A good Updates-Per-Seconds (UPS) and Frames-Per-Second (FPS) system, similar to Factorio.
+- A good Updates-Per-Seconds (UPS) and Frames-Per-Second (FPS) system, similar to Factorio. This is printed in the GUI.
+- When below a configurable number of bodies are left the universe can center itself around it's total Center of Mass.
 
 ## TODO
 - Run `kcachegrind` and optimize accordingly.
 - Handle stationary bodies correctly during collisions.
-- Start centering the universe's center of mass when the number of bodies is low enough. This is to keep the bodies on screen.
-- ~~Implement constant frame rate. Currently simulation runs as fast as possible, and annoyingly speeds up with lesser bodies.~~
-- ~~Show UPS/FPV on screen with some additional information.~~
 - Improve UPS/FPS system to prioritize UPS over FPS.

@@ -22,9 +22,10 @@ class Universe {
 public:
 
     float time_step = 0.1;
+    const int max_bodies_to_center = 50;
 
     const bool render = true;
-    const int UPS_limit = 50.0;
+    const int UPS_limit = 100.0;
     const int FPS_limit = 10.0;
 
     int screenWidth = 1000;
@@ -35,8 +36,6 @@ public:
     int gfont_size = 18;
     SDL_Window *gWindow;
     SDL_Renderer *gRenderer;
-
-
 
     bool show_force_on_body = false;
     bool show_acc_on_body = false;
@@ -53,6 +52,8 @@ public:
     void step_through_bodies();
     void check_for_collisions_and_combine();
     Vec3<float> calculate_gravity_force_between(Body& this_body, Body& that_body);
+    Vec3<float> calculate_universe_com();
+    void center_universe_around(Vec3<float> center);
     void init_random_bodies();
 
     void screen_render(float ups, float fps);

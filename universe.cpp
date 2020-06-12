@@ -70,6 +70,10 @@ bool Universe::step_universe(){
         fps_duration = clock::now() - before;
     }
 
+    // If the amount of bodies is low enough, center the universe
+    if (bodies.size() < max_bodies_to_center){
+        center_universe_around(calculate_universe_com());
+    }
 
     if (render){
         // Should we still wait before rendering? Unlikely...
@@ -176,6 +180,21 @@ Vec3<float> Universe::calculate_gravity_force_between(Body& this_body, Body& tha
 
     // Return it's components
     return Vec3<float>(f * dpos.x, f * dpos.y, 0);
+}
+
+Vec3<float> Universe::calculate_universe_com(){
+    Vec3<float> com (0);
+    float total_mass = 0;
+    for (auto & body : bodies){
+        com += body.pos * body.mass;
+        total_mass += body.mass;
+    }
+    return com / total_mass;
+}
+void Universe::center_universe_around(Vec3<float> center){
+    Vec3<float> screen_center (screenWidth/2, screenHeight/2, 0);
+    for (auto & body : bodies)
+        body.pos += screen_center - center;
 }
 
 void Universe::screen_render(float ups, float fps){
@@ -317,7 +336,7 @@ bool Universe::handle_input(){
 
 void Universe::init_random_bodies(){
 
-    uint32_t seed = 8125;
+    uint32_t seed = 80025;
     srand(seed);
 
     // std::cout << "---------------------------------\n";
