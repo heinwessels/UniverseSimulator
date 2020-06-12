@@ -11,10 +11,12 @@ Body::Body(float mass, float radius, Vec3<float> pos) : mass(mass), radius(radiu
 }
 
 void Body::apply_force(Vec3<float> force, float time_step){
-    last_force = force;         // For debugging
-    Vec3<float> time (time_step);
-    Vec3<float> acceleration = force / Vec3<float>(mass);
+
+    Vec3<float> acceleration = force / mass;
+
     last_acc = acceleration;    // For debugging
-    speed += acceleration * time;
-    pos += speed * time - Vec3<float>(0.5) * acceleration * time * time;
+    last_force = force;         // For debugging
+
+    speed += acceleration * time_step;   // The next formule requires the final speed
+    pos += speed * time_step - (acceleration * 0.5 * time_step * time_step);
 }

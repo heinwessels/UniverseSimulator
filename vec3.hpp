@@ -22,6 +22,18 @@ class Vec3 {
         t += v;
         return t;
     }
+    Vec3& operator += (const T &c){
+        x += c;
+        y += c;
+        z += c;
+        return *this;
+    }
+    Vec3 operator + (const T &c){
+        Vec3 t (*this);
+        t += c;
+        return t;
+    }
+
     Vec3& operator -= (const Vec3 & v){
         x -= v.x;
         y -= v.y;
@@ -33,6 +45,18 @@ class Vec3 {
         t -= v;
         return t;
     }
+    Vec3& operator -= (const T &c){
+        x -= c;
+        y -= c;
+        z -= c;
+        return *this;
+    }
+    Vec3 operator - (const T &c){
+        Vec3 t (*this);
+        t -= c;
+        return t;
+    }
+
     Vec3& operator *= (const Vec3 & v){
         x *= v.x;
         y *= v.y;
@@ -44,6 +68,18 @@ class Vec3 {
         t *= v;
         return t;
     }
+    Vec3& operator *= (const T &c){
+        x *= c;
+        y *= c;
+        z *= c;
+        return *this;
+    }
+    Vec3 operator * (const T &c){
+        Vec3 t (*this);
+        t *= c;
+        return t;
+    }
+
     Vec3& operator /= (const Vec3 & v){
         x /= v.x;
         y /= v.y;
@@ -53,6 +89,17 @@ class Vec3 {
     Vec3 operator / (const Vec3 &v){
         Vec3 t (*this);
         t /= v;
+        return t;
+    }
+    Vec3& operator /= (const T &c){
+        x /= c;
+        y /= c;
+        z /= c;
+        return *this;
+    }
+    Vec3 operator / (const T &c){
+        Vec3 t (*this);
+        t /= c;
         return t;
     }
 };
