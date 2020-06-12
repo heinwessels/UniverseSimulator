@@ -3,7 +3,7 @@
 Universe::Universe(){
     printf("Universe Startup\n");
 
-    state = idle;
+    state = running;
 
     gRenderer = NULL;
     gWindow = NULL;
@@ -22,32 +22,72 @@ Universe::Universe(){
 
     init_random_bodies();
 
-    screen_init();
-    screen_render();
+    if (render){
+        screen_init();
+        screen_render(0, 0);
+    }
     while(step_universe()){}
 }
 
 bool Universe::step_universe(){
 
-    static unsigned int frame_count = 0;
+    using clock = std::chrono::system_clock;
+    using sec = std::chrono::duration<double>;
 
-    if (delay != 0)
-        SDL_Delay(delay);
+    static float prev_ups = UPS_limit;
+    static float prev_fps = FPS_limit;
+    static sec last_render_duration (0);
 
-    if (state == running || state == single_step){
-        step_through_bodies();
-        check_for_collisions_and_combine();
+    const auto before = clock::now();
 
-        if (state == single_step){
-            printf("IDLE\n");
-            state = idle;
+    bool cont = true;
+
+    // Count updates to ensure do not pass max updates per frame,
+    // or maximum FPS (taking into account rendering time)
+    int count_updates = 0;
+    sec fps_duration = clock::now() - before;
+    while (
+        (++count_updates < UPS_limit / prev_fps) &&
+        ((fps_duration + last_render_duration).count() < 1.0f / FPS_limit)
+    ){
+        if (state == running || state == single_step){
+            step_through_bodies();
+            check_for_collisions_and_combine();
+
+            if (state == single_step){
+                printf("IDLE\n");
+                state = idle;
+            }
         }
+
+        // Calculate how long we've been in this loop
+        fps_duration = clock::now() - before;
     }
 
-    if(!(frame_count++ % render_frame))
-        screen_render();
 
-    return handle_input();
+    if (render){
+        // Should we still wait before rendering? Unlikely...
+        fps_duration = clock::now() - before;
+        while(fps_duration.count() < 1.0f/FPS_limit){
+            SDL_Delay(1);
+            fps_duration = clock::now() - before;
+        }
+
+        // Now render the screen
+        const auto before_render = clock::now();
+        screen_render(prev_ups, prev_fps);
+        cont = handle_input();  // Handle this here, as SDL_PollEvent is super slow
+        sec last_render_duration = clock::now() - before_render;
+    }
+
+    // Now remember how long everything took, and display it on the next render
+    fps_duration = clock::now() - before;
+    prev_fps = 1.0f / fps_duration.count();
+    prev_ups = (count_updates - 1) * prev_fps;  // -1 Due to how counter works
+
+    printf("UPS/FPS = %3.2f / %3.2f\n", prev_ups, prev_fps);
+
+    return cont;
 }
 
 void Universe::step_through_bodies(){
@@ -134,7 +174,7 @@ Vec3<float> Universe::calculate_gravity_force_between(Body& this_body, Body& tha
     return Vec3<float>(f * dpos.x, f * dpos.y, 0);
 }
 
-void Universe::screen_render(){
+void Universe::screen_render(float ups, float fps){
 
     // Clear Screen
     SDL_SetRenderDrawColor( gRenderer, 0, 0, 0, 0 );
@@ -187,6 +227,8 @@ void Universe::screen_render(){
             );
         }
     }
+
+    // Draw the UPS/FPS counter
 
     // Update the screen
     SDL_RenderPresent( gRenderer );

@@ -1,4 +1,5 @@
 #include <vector>
+#include <chrono>
 #include "vec3.hpp"
 #include "body.hpp"
 #include <stdio.h>
@@ -19,9 +20,11 @@ class Universe {
 public:
 
     float time_step = 0.1;
-    float delay = 0;  // in ms
 
-    int render_frame = 10;
+    const bool render = true;
+    const int UPS_limit = 30.0;
+    const int FPS_limit = 15.0;
+
     int screenWidth = 1000;
     int screenHeight = 1000;
     SDL_Window *gWindow;
@@ -34,7 +37,7 @@ public:
     vector<Body> bodies;
 
     enum UniverseState {idle, running, single_step};
-    UniverseState state = idle;
+    UniverseState state = running;
 
     Universe();
 
@@ -44,7 +47,7 @@ public:
     Vec3<float> calculate_gravity_force_between(Body& this_body, Body& that_body);
     void init_random_bodies();
 
-    void screen_render();
+    void screen_render(float ups, float fps);
     bool handle_input();
     bool screen_init();
 };
