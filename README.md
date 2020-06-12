@@ -23,7 +23,7 @@ An universe simulator I'm building to learn C++. It will have a n-body gravitati
 ## TODO
 - Run `kcachegrind` and optimize accordingly.
 - Handle stationary bodies correctly during collisions.
-- Start centering the universe's center of mass in number of bodies is low enough.
+- Start centering the universe's center of mass when the number of bodies is low enough. This is to keep the bodies on screen.
 - ~~Implement constant frame rate. Currently simulation runs as fast as possible, and annoyingly speeds up with lesser bodies.~~
-- Show UPS/FPV on screen.
+- ~~Show UPS/FPV on screen with some additional information.~~
 - Improve UPS/FPS system to prioritize UPS over FPS.

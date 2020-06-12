@@ -27,6 +27,12 @@ Universe::Universe(){
         screen_render(0, 0);
     }
     while(step_universe()){}
+
+    // Cleanup
+    TTF_Quit();
+    SDL_DestroyRenderer(gRenderer);
+    SDL_DestroyWindow(gWindow);
+    SDL_Quit();
 }
 
 bool Universe::step_universe(){
@@ -84,8 +90,6 @@ bool Universe::step_universe(){
     fps_duration = clock::now() - before;
     prev_fps = 1.0f / fps_duration.count();
     prev_ups = (count_updates - 1) * prev_fps;  // -1 Due to how counter works
-
-    printf("UPS/FPS = %3.2f / %3.2f\n", prev_ups, prev_fps);
 
     return cont;
 }
@@ -228,10 +232,50 @@ void Universe::screen_render(float ups, float fps){
         }
     }
 
-    // Draw the UPS/FPS counter
+    // Print Some Information
+    const int MAX_STRING_LEN = 50;
+    SDL_Rect rect;
+    char text[MAX_STRING_LEN];
+    SDL_Color color;
+    color.r = 255;
+    color.g = 255;
+    color.b = 255;
+    color.a = 255;
+    snprintf(text, MAX_STRING_LEN, "UPS/FPS : [%2.2f", ups);
+    render_text(gRenderer, 10, 10, text, gfont, &rect, &color);
+    snprintf(text, MAX_STRING_LEN, "/ %2.2f]", fps);
+    render_text(gRenderer, rect.x + 200, 10, text, gfont, &rect, &color);
+    snprintf(text, MAX_STRING_LEN, "Num Bodies:  %lu", bodies.size());
+    render_text(gRenderer, 10, 33, text, gfont, &rect, &color);
 
     // Update the screen
     SDL_RenderPresent( gRenderer );
+}
+
+void Universe::render_text(
+    SDL_Renderer *renderer,
+    int x,
+    int y,
+    const char *text,
+    TTF_Font *font,
+    SDL_Rect *rect,
+    SDL_Color *color
+) {
+    SDL_Surface *surface;
+    SDL_Texture *texture;
+
+    surface = TTF_RenderText_Solid(font, text, *color);
+    texture = SDL_CreateTextureFromSurface(renderer, surface);
+    rect->x = x;
+    rect->y = y;
+    rect->w = surface->w;
+    rect->h = surface->h;
+    /* This is wasteful for textures that stay the same.
+     * But makes things less stateful and easier to use.
+     * Not going to code an atlas solution here... are we? */
+    SDL_FreeSurface(surface);
+    SDL_RenderCopy(renderer, texture, NULL, rect);
+    SDL_DestroyTexture(texture);
 }
 
 bool Universe::handle_input(){
@@ -376,15 +420,12 @@ bool Universe::screen_init(){
                 }
                 else
                 {
-                    //Initialize renderer color
-                    SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-
-                    //Initialize PNG loading
-                    int imgFlags = IMG_INIT_PNG;
-                    if (!(IMG_Init(imgFlags) & imgFlags))
-                    {
-                        printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
-                        success = false;
+                    // Setup TTF
+                    TTF_Init();
+                    gfont = TTF_OpenFont(gfont_path, 18);
+                    if (gfont == NULL) {
+                        fprintf(stderr, "error: font not found\n");
+                        exit(EXIT_FAILURE);
                     }
                 }
             }
