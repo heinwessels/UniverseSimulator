@@ -10,22 +10,24 @@ Universe::Universe(){
 
     Body sun (250, 20, Vec3<float>(screenWidth / 2, screenHeight / 2, 0));
 
-    Body earth (10, 5, Vec3<float>(screenWidth / 2 + 250, screenHeight / 2, 0));
+    Body earth (12, 6, Vec3<float>(screenWidth / 2 + 250, screenHeight / 2, 0));
     earth.speed = Vec3<float>(0, 1, 0);
 
     Body moon (10, 5, Vec3<float>(screenWidth / 2 - 250, screenHeight / 2, 0));
-    moon.speed = Vec3<float>(0, -1, 0);
+    // moon.speed = Vec3<float>(0, -1, 0);
 
-    // bodies[0] = moon;
-    // bodies[1] = sun;
-    // bodies[2] = earth;
-    // num_of_bodies = 3;
+    // bodies[num_of_bodies++] = moon;
+    // bodies[num_of_bodies++] = sun;
+    // bodies[num_of_bodies++] = earth;
 
     init_random_bodies();
 
     if (render){
         screen_init();
         screen_render(0, 0);
+        if(take_screenshot_every){
+            screenshot("screenshot_0");
+        }
     }
 
     while(step_universe()){}
@@ -231,13 +233,15 @@ void Universe::screen_render(float ups, float fps){
         if (universe_scale_factor == 1){
             rect.x = bodies[i].pos.x - bodies[i].radius;
             rect.y = bodies[i].pos.y - bodies[i].radius;
+            rect.w = bodies[i].radius * 2 + 1;
+            rect.h = bodies[i].radius * 2 + 1;
         }
         else{
             rect.x = (bodies[i].pos.x - screenWidth/2)*universe_scale_factor + screenWidth/2 - bodies[i].radius;
             rect.y = (bodies[i].pos.y - screenWidth/2)*universe_scale_factor + screenWidth/2 - bodies[i].radius;
+            rect.w = bodies[i].radius * 2 * universe_scale_factor + 1;
+            rect.h = bodies[i].radius * 2 * universe_scale_factor + 1;
         }
-        rect.w = bodies[i].radius * 2 + 1;
-        rect.h = bodies[i].radius * 2 + 1;
         SDL_SetRenderDrawColor( gRenderer, 255, 0, 0, 0 );
         SDL_RenderFillRect(gRenderer, &rect);
 
@@ -411,11 +415,11 @@ void Universe::init_random_bodies(){
     const double speed_fx = screenWidth / speed_frequency;
     const double speed_fy = screenHeight / speed_frequency;
 
-    double density = 0.4;
+    double density = 0.2;
     double minimim_radius = 1;
     double maximum_radius = 4;
     double spacing_multiplier = 5;
-    double speed_multiplier = 1;
+    double speed_multiplier = 20;
 
     int offset = 30;
     int x = offset, y = offset;

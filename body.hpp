@@ -15,7 +15,7 @@ class Body{
     bool neglible;
     bool stationary;
     float mass;         // In kg
-    int radius;         // In meter
+    float radius;         // In meter
     Vec3<float> pos;          // In meter
     Vec3<float> speed;        // In m / s
 
