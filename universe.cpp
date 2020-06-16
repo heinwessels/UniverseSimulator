@@ -16,17 +16,16 @@ Universe::Universe(){
     Body moon (10, 5, Vec3<float>(screenWidth / 2 - 250, screenHeight / 2, 0));
     moon.speed = Vec3<float>(0, -1, 0);
 
-    bodies.push_back(moon);
-    bodies.push_back(sun);
-    bodies.push_back(earth);
+    // bodies.push_back(moon);
+    // bodies.push_back(sun);
+    // bodies.push_back(earth);
 
-    // init_random_bodies();
+    init_random_bodies();
 
     if (render){
         screen_init();
         screen_render(0, 0);
     }
-    screenshot("vis.bmp");
 
     while(step_universe()){}
 
