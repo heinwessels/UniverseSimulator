@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include<iostream>
 #include <cmath>
+#include <ctime>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -26,10 +27,11 @@ public:
     float time_step = 0.1;
 
     const bool render = true;
-    const int UPS_limit = 100.0;
-    const int FPS_limit = 10.0;
+    const float UPS_limit = 100.0;
+    const float FPS_limit = 10.0;
     bool universe_centralize = false;
-    float universe_scale_factor = 1;
+    float universe_scale_factor = 0.0001;
+    int take_screenshot_every = 10; // [steps], 0 to disable. Overwrites UPS/FPS settings
 
     int screenWidth = 1000;
     int screenHeight = 1000;
@@ -63,6 +65,7 @@ public:
     void render_text(SDL_Renderer *renderer, int x, int y, const char *text, TTF_Font *font, SDL_Rect *rect, SDL_Color *color);
     bool handle_input();
     bool screen_init();
+    void screenshot(string path);
 };
 
 

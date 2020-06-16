@@ -26,6 +26,8 @@ Universe::Universe(){
         screen_init();
         screen_render(0, 0);
     }
+    screenshot("vis.bmp");
+
     while(step_universe()){}
 
     // Cleanup
@@ -51,35 +53,49 @@ bool Universe::step_universe(){
     // Count updates to ensure do not pass max updates per frame,
     // or maximum FPS (taking into account rendering time)
     int count_updates = 0;
+    static int count_total_updates = 0;
     sec fps_duration = clock::now() - before;
-    while (
-        (++count_updates < UPS_limit / prev_fps) &&
-        ((fps_duration + last_render_duration).count() < 1.0f / FPS_limit)
-    ){
-        if (state == running || state == single_step){
+    if (take_screenshot_every){
+        while(count_updates++ < take_screenshot_every){
             step_through_bodies();
             check_for_collisions_and_combine();
-
-            if (state == single_step){
-
-                state = idle;
-            }
         }
-
-        // Calculate how long we've been in this loop
-        fps_duration = clock::now() - before;
     }
+    else{
+        while (
+            (++count_updates < UPS_limit / prev_fps) &&
+            ((fps_duration + last_render_duration).count() < 1.0f / FPS_limit)
+        ){
+            if (state == running || state == single_step){
+                step_through_bodies();
+                check_for_collisions_and_combine();
+
+                if (state == single_step){
+
+                    state = idle;
+                }
+            }
+
+            // Calculate how long we've been in this loop
+            fps_duration = clock::now() - before;
+        }
+    }
+    fps_duration = clock::now() - before;
+    if (take_screenshot_every)
+        prev_ups = (float)take_screenshot_every / fps_duration.count();
+    count_total_updates += count_updates - 1;
+
 
     // If the amount of bodies is low enough, center the universe
     if(universe_centralize){
         center_universe_around(calculate_universe_com());
     }
 
-
+    // Now render the screen
     if (render){
-        // Should we still wait before rendering? Unlikely...
+        // Should we still wait before rendering? Unlikely... Unless we're taking screenshots
         fps_duration = clock::now() - before;
-        while(fps_duration.count() < 1.0f/FPS_limit){
+        while(fps_duration.count() < 1.0f/FPS_limit && !take_screenshot_every){
             SDL_Delay(1);
             fps_duration = clock::now() - before;
         }
@@ -87,6 +103,9 @@ bool Universe::step_universe(){
         // Now render the screen
         const auto before_render = clock::now();
         screen_render(prev_ups, prev_fps);
+        if (take_screenshot_every){
+            screenshot("screenshot_" + std::to_string(count_total_updates));
+        }
         cont = handle_input();  // Handle this here, as SDL_PollEvent is super slow
         sec last_render_duration = clock::now() - before_render;
     }
@@ -94,7 +113,8 @@ bool Universe::step_universe(){
     // Now remember how long everything took, and display it on the next render
     fps_duration = clock::now() - before;
     prev_fps = 1.0f / fps_duration.count();
-    prev_ups = (count_updates - 1) * prev_fps;  // -1 Due to how counter works
+    if (!take_screenshot_every)
+        prev_ups = (count_updates - 1) * prev_fps;  // -1 Due to how counter works
 
     return cont;
 }
@@ -270,7 +290,7 @@ void Universe::screen_render(float ups, float fps){
     snprintf(text, MAX_STRING_LEN, "UPS/FPS : [%2.2f", ups);
     render_text(gRenderer, 10, 10, text, gfont, &rect, &color);
     snprintf(text, MAX_STRING_LEN, "/ %2.2f]", fps);
-    render_text(gRenderer, rect.x + 200, 10, text, gfont, &rect, &color);
+    render_text(gRenderer, rect.x + 300, 10, text, gfont, &rect, &color);
     snprintf(text, MAX_STRING_LEN, "Num of Bodies:  %lu", bodies.size());
     render_text(gRenderer, 10, 33, text, gfont, &rect, &color);
 
@@ -436,6 +456,13 @@ void Universe::init_random_bodies(){
     }
 
 
+}
+
+void Universe::screenshot(string path){
+    SDL_Surface *sshot = SDL_CreateRGBSurface(0, screenWidth, screenHeight, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
+    SDL_RenderReadPixels(gRenderer, NULL, SDL_PIXELFORMAT_ARGB8888, sshot->pixels, sshot->pitch);
+    SDL_SaveBMP(sshot, ("screenshots/" + path).c_str());
+    SDL_FreeSurface(sshot);
 }
 
 bool Universe::screen_init(){
