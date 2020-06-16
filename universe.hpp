@@ -22,7 +22,9 @@ class Universe {
 
 public:
 
-    uint32_t gseed = 80025;
+    const static int MAX_BODIES = 10000;
+
+    uint32_t gseed = 9025;
 
     float time_step = 0.1;
 
@@ -30,8 +32,8 @@ public:
     const float UPS_limit = 100.0;
     const float FPS_limit = 10.0;
     bool universe_centralize = false;
-    float universe_scale_factor = 0.0001;
-    int take_screenshot_every = 10; // [steps], 0 to disable. Overwrites UPS/FPS settings
+    float universe_scale_factor = 1;
+    int take_screenshot_every = 0; // [steps], 0 to disable. Overwrites UPS/FPS settings
 
     int screenWidth = 1000;
     int screenHeight = 1000;
@@ -46,7 +48,8 @@ public:
     bool show_acc_on_body = false;
     bool show_speed_on_body = false;
 
-    vector<Body> bodies;
+    Body bodies [MAX_BODIES];
+    int num_of_bodies = 0;
 
     enum UniverseState {idle, running, single_step};
     UniverseState state = running;

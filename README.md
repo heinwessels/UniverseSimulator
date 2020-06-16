@@ -9,6 +9,8 @@ An universe simulator I'm building to learn C++. It will have a n-body gravitati
 - The previous point allows storing only a single instance of all the bodies. Otherwise, applying a force to a body will change that body's state before other bodies' calculations are done, resulting in a inaccurate simulation.
 - Using arbitray units rather than simulating the actual unniverse. For example, distance is in `pixels`, speed in `pixels/second`, etc. This avoids costly conversions between `km` and `pixels`.
 - `kcachegrind` shows that `SDL_PollEvent` used >50% of the processing time. Therefore implemented UPS/FPS limits, and only call `handle_input` once for every rendered frame.
+- Changed body storage from `vector` to `array`, because `vector::at()` was taking a significant chunk of processing (>40%). (From `kcachegrind`)
+- Changed `pow(x, 2)` to `x*x`. `Pow` is much slower than multiplication for `^2` according to the internet. (Found major culprit using `kcachegrind`)
 
 ## Things I like
 - Combining bodies on collision are (reasonably) realistic
@@ -20,6 +22,7 @@ An universe simulator I'm building to learn C++. It will have a n-body gravitati
 - Ability to start/stop/single-step the simulation.
 - A good Updates-Per-Seconds (UPS) and Frames-Per-Second (FPS) system, similar to Factorio. This is printed in the GUI.
 - When below a configurable number of bodies are left the universe can center itself around it's total Center of Mass.
+- Take a screenshot every n updates to make some sweet gifs.
 
 ## TODO
 - Run `kcachegrind` and optimize accordingly.

@@ -16,9 +16,10 @@ Universe::Universe(){
     Body moon (10, 5, Vec3<float>(screenWidth / 2 - 250, screenHeight / 2, 0));
     moon.speed = Vec3<float>(0, -1, 0);
 
-    // bodies.push_back(moon);
-    // bodies.push_back(sun);
-    // bodies.push_back(earth);
+    // bodies[0] = moon;
+    // bodies[1] = sun;
+    // bodies[2] = earth;
+    // num_of_bodies = 3;
 
     init_random_bodies();
 
@@ -120,65 +121,65 @@ bool Universe::step_universe(){
 
 void Universe::step_through_bodies(){
 
-    int n = bodies.size();
-    static Vec3<float> forces [20000];
+    static Vec3<float> forces [MAX_BODIES];
 
     // Clear forces array
-    for (int i = 0; i < n; i++){
+    for (int i = 0; i < num_of_bodies; i++){
         forces[i].x = 0;
         forces[i].y = 0;
     }
 
     // Step through the n bodies in O(n logn) to calculate the experienced gravitational forces
-    for (int i = 0; i < n; i++){
-        for (int j = i + 1; j < n; j++){
+    for (int i = 0; i < num_of_bodies; i++){
+        for (int j = i + 1; j < num_of_bodies; j++){
 
             // Is it neccesary to calculate the force between these two bodies?
-            if (!bodies.at(i).stationary || bodies.at(i).neglible
-                    || !bodies.at(i).stationary || bodies.at(i).neglible){
+            if (!bodies[i].stationary || bodies[i].neglible
+                    || !bodies[i].stationary || bodies[i].neglible){
 
                 // Calculate the force betwe en the two bodies
-                Vec3<float> force = calculate_gravity_force_between(bodies.at(i), bodies.at(j));
+                Vec3<float> force = calculate_gravity_force_between(bodies[i], bodies[j]);
 
                 // Apply the force to the body if it's not stationary (both of them)
-                if (!bodies.at(i).stationary)
+                if (!bodies[i].stationary)
                     forces[i] += force;
-                if (!bodies.at(j).stationary)
+                if (!bodies[j].stationary)
                     forces[j] -= force;  // Inverting it for the other body
             }
         }
 
         // This will exectute only when all forces on this body has been accounted for
-        if (!bodies.at(i).stationary)
-            bodies.at(i).apply_force(forces[i], time_step);
+        if (!bodies[i].stationary)
+            bodies[i].apply_force(forces[i], time_step);
     }
 }
 
 void Universe::check_for_collisions_and_combine(){
     int i = 0, j = 0;
-    while(i < bodies.size()){
+    while(i < num_of_bodies){
         j = i+1;
-        while(j < bodies.size()){
+        while(j < num_of_bodies){
 
-            Vec3<float> delta = bodies.at(j).pos - bodies.at(i).pos;
-            float d2 = pow(delta.x, 2) + pow(delta.y, 2);
-            if(d2 < pow(bodies.at(i).radius + bodies.at(j).radius, 2)){
+            Vec3<float> delta = bodies[j].pos - bodies[i].pos;
+            float d2 = delta.x*delta.x + delta.y*delta.y;
+            if(d2 < (bodies[i].radius + bodies[j].radius)*(bodies[i].radius + bodies[j].radius)){
                 // Collision! Combine the bodies!
                 // TODO Handle stationary objects correctly
 
                 // Calculate the new location using the CoM of the two bodies
-                bodies.at(i).pos = (bodies.at(i).pos * bodies.at(i).mass + bodies.at(j).pos * bodies.at(j).mass)
-                                     / (bodies.at(i).mass + bodies.at(j).mass);
+                bodies[i].pos = (bodies[i].pos * bodies[i].mass + bodies[j].pos * bodies[j].mass)
+                                     / (bodies[i].mass + bodies[j].mass);
 
                 // Calculate speed using law of conservation of energy
-                bodies.at(i).speed = (bodies.at(i).speed * bodies.at(i).mass + bodies.at(j).speed * bodies.at(j).mass)
-                                    / (bodies.at(i).mass + bodies.at(j).mass);
+                bodies[i].speed = (bodies[i].speed * bodies[i].mass + bodies[j].speed * bodies[j].mass)
+                                    / (bodies[i].mass + bodies[j].mass);
 
                 // Calculate the new radius adding the area's of the two bodies
-                bodies.at(i).radius = sqrt(pow(bodies.at(i).radius, 2) + pow(bodies.at(j).radius, 2));
-                bodies.at(i).mass += bodies.at(j).mass;
+                bodies[i].radius = sqrt(bodies[i].radius*bodies[i].radius + bodies[j].radius*bodies[j].radius);
+                bodies[i].mass += bodies[j].mass;
 
-                bodies.erase(bodies.begin() + j);
+                // Now erase the body, by overwriting it with the last body in the array, and length - 1
+                bodies[j] = bodies[--num_of_bodies];
             }
 
             j++;
@@ -192,7 +193,7 @@ Vec3<float> Universe::calculate_gravity_force_between(Body& this_body, Body& tha
 
     // Calculate the distance cubed
     Vec3<float> dpos = (that_body.pos - this_body.pos);
-    float r3 = pow(dpos.x, 2) + pow(dpos.y, 2);
+    float r3 = dpos.x*dpos.x + dpos.y*dpos.y;
     r3 *=  sqrt(r3);
 
     // Calculate the absolute force divided by the distance
@@ -205,16 +206,16 @@ Vec3<float> Universe::calculate_gravity_force_between(Body& this_body, Body& tha
 Vec3<float> Universe::calculate_universe_com(){
     Vec3<float> com (0);
     float total_mass = 0;
-    for (auto & body : bodies){
-        com += body.pos * body.mass;
-        total_mass += body.mass;
+    for (int i = 0; i < num_of_bodies; i++){
+        com += bodies[i].pos * bodies[i].mass;
+        total_mass += bodies[i].mass;
     }
     return com / total_mass;
 }
 void Universe::center_universe_around(Vec3<float> center){
     Vec3<float> screen_center (screenWidth/2, screenHeight/2, 0);
-    for (auto & body : bodies)
-        body.pos += screen_center - center;
+    for (int i = 0; i < num_of_bodies; i++)
+        bodies[i].pos += screen_center - center;
 }
 
 void Universe::screen_render(float ups, float fps){
@@ -224,55 +225,55 @@ void Universe::screen_render(float ups, float fps){
     SDL_RenderClear(gRenderer);
 
     // Draw the bodies
-    for (Body& body : bodies){
+    for (int i = 0; i < num_of_bodies; i++){
 
         SDL_Rect rect;
         if (universe_scale_factor == 1){
-            rect.x = body.pos.x - body.radius;
-            rect.y = body.pos.y - body.radius;
+            rect.x = bodies[i].pos.x - bodies[i].radius;
+            rect.y = bodies[i].pos.y - bodies[i].radius;
         }
         else{
-            rect.x = (body.pos.x - screenWidth/2)*universe_scale_factor + screenWidth/2 - body.radius;
-            rect.y = (body.pos.y - screenWidth/2)*universe_scale_factor + screenWidth/2 - body.radius;
+            rect.x = (bodies[i].pos.x - screenWidth/2)*universe_scale_factor + screenWidth/2 - bodies[i].radius;
+            rect.y = (bodies[i].pos.y - screenWidth/2)*universe_scale_factor + screenWidth/2 - bodies[i].radius;
         }
-        rect.w = body.radius * 2 + 1;
-        rect.h = body.radius * 2 + 1;
+        rect.w = bodies[i].radius * 2 + 1;
+        rect.h = bodies[i].radius * 2 + 1;
         SDL_SetRenderDrawColor( gRenderer, 255, 0, 0, 0 );
         SDL_RenderFillRect(gRenderer, &rect);
 
-        if (show_force_on_body && body.last_force.x != 0){
-            float f = sqrt(pow(body.last_force.x, 2) + pow(body.last_force.y, 2));
+        if (show_force_on_body && bodies[i].last_force.x != 0){
+            float f = sqrt(bodies[i].last_force.x*bodies[i].last_force.x + bodies[i].last_force.y*bodies[i].last_force.y);
             SDL_SetRenderDrawColor( gRenderer, 0, 255, 0, 0 );
             SDL_RenderDrawLine(
                 gRenderer,
-                body.pos.x,
-                body.pos.y,
-                body.pos.x + 3 * body.radius * body.last_force.x / f,
-                body.pos.y + 3 * body.radius * body.last_force.y / f
+                bodies[i].pos.x,
+                bodies[i].pos.y,
+                bodies[i].pos.x + 3 * bodies[i].radius * bodies[i].last_force.x / f,
+                bodies[i].pos.y + 3 * bodies[i].radius * bodies[i].last_force.y / f
             );
         }
 
-        if (show_acc_on_body && body.last_acc.x != 0){
-            float a = sqrt(pow(body.last_acc.x, 2) + pow(body.last_acc.y, 2));
+        if (show_acc_on_body && bodies[i].last_acc.x != 0){
+            float a = sqrt(bodies[i].last_acc.x*bodies[i].last_acc.x + bodies[i].last_acc.y*bodies[i].last_acc.y);
             SDL_SetRenderDrawColor( gRenderer, 0, 0, 255, 0 );
             SDL_RenderDrawLine(
                 gRenderer,
-                body.pos.x,
-                body.pos.y,
-                body.pos.x + 3 * body.radius * body.last_acc.x / a,
-                body.pos.y + 3 * body.radius * body.last_acc.y / a
+                bodies[i].pos.x,
+                bodies[i].pos.y,
+                bodies[i].pos.x + 3 * bodies[i].radius * bodies[i].last_acc.x / a,
+                bodies[i].pos.y + 3 * bodies[i].radius * bodies[i].last_acc.y / a
             );
         }
 
         if (show_speed_on_body){
-            float s = sqrt(pow(body.speed.x, 2) + pow(body.speed.y, 2));
+            float s = sqrt(bodies[i].speed.x*bodies[i].speed.x + bodies[i].speed.y*bodies[i].speed.y);
             SDL_SetRenderDrawColor( gRenderer, 0, 0, 255, 0 );
             SDL_RenderDrawLine(
                 gRenderer,
-                body.pos.x,
-                body.pos.y,
-                body.pos.x + 3 * body.radius * body.speed.x / s,
-                body.pos.y + 3 * body.radius * body.speed.y / s
+                bodies[i].pos.x,
+                bodies[i].pos.y,
+                bodies[i].pos.x + 3 * bodies[i].radius * bodies[i].speed.x / s,
+                bodies[i].pos.y + 3 * bodies[i].radius * bodies[i].speed.y / s
             );
         }
     }
@@ -290,7 +291,7 @@ void Universe::screen_render(float ups, float fps){
     render_text(gRenderer, 10, 10, text, gfont, &rect, &color);
     snprintf(text, MAX_STRING_LEN, "/ %2.2f]", fps);
     render_text(gRenderer, rect.x + 300, 10, text, gfont, &rect, &color);
-    snprintf(text, MAX_STRING_LEN, "Num of Bodies:  %lu", bodies.size());
+    snprintf(text, MAX_STRING_LEN, "Num of Bodies:  %d", num_of_bodies);
     render_text(gRenderer, 10, 33, text, gfont, &rect, &color);
 
 
@@ -412,7 +413,7 @@ void Universe::init_random_bodies(){
 
     double density = 0.4;
     double minimim_radius = 1;
-    double maximum_radius = 3;
+    double maximum_radius = 4;
     double spacing_multiplier = 5;
     double speed_multiplier = 1;
 
@@ -436,8 +437,7 @@ void Universe::init_random_bodies(){
                 0
             );
 
-            bodies.push_back(body);
-
+            bodies[num_of_bodies++] = body;
 
             // printf("[%d, %d]:\n\tRadius: %.3f\n\tSpeed Rand: %.3f\n", x, y, radius, speed_randomizer);
 

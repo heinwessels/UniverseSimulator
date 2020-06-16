@@ -7,6 +7,8 @@
         "chrono": "cpp",
         "*.tcc": "cpp",
         "string": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "array": "cpp",
+        "string_view": "cpp"
     }
 }
