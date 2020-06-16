@@ -21,12 +21,15 @@ class Universe {
 
 public:
 
+    uint32_t gseed = 80025;
+
     float time_step = 0.1;
-    const int max_bodies_to_center = 50;
 
     const bool render = true;
     const int UPS_limit = 100.0;
     const int FPS_limit = 10.0;
+    bool universe_centralize = false;
+    float universe_scale_factor = 1;
 
     int screenWidth = 1000;
     int screenHeight = 1000;

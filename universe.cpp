@@ -16,11 +16,11 @@ Universe::Universe(){
     Body moon (10, 5, Vec3<float>(screenWidth / 2 - 250, screenHeight / 2, 0));
     moon.speed = Vec3<float>(0, -1, 0);
 
-    // bodies.push_back(moon);
-    // bodies.push_back(sun);
-    // bodies.push_back(earth);
+    bodies.push_back(moon);
+    bodies.push_back(sun);
+    bodies.push_back(earth);
 
-    init_random_bodies();
+    // init_random_bodies();
 
     if (render){
         screen_init();
@@ -61,7 +61,7 @@ bool Universe::step_universe(){
             check_for_collisions_and_combine();
 
             if (state == single_step){
-                printf("IDLE\n");
+
                 state = idle;
             }
         }
@@ -71,9 +71,10 @@ bool Universe::step_universe(){
     }
 
     // If the amount of bodies is low enough, center the universe
-    if (bodies.size() < max_bodies_to_center){
+    if(universe_centralize){
         center_universe_around(calculate_universe_com());
     }
+
 
     if (render){
         // Should we still wait before rendering? Unlikely...
@@ -101,7 +102,7 @@ bool Universe::step_universe(){
 void Universe::step_through_bodies(){
 
     int n = bodies.size();
-    static Vec3<float> forces [2000];
+    static Vec3<float> forces [20000];
 
     // Clear forces array
     for (int i = 0; i < n; i++){
@@ -207,8 +208,14 @@ void Universe::screen_render(float ups, float fps){
     for (Body& body : bodies){
 
         SDL_Rect rect;
-        rect.x = body.pos.x - body.radius;
-        rect.y = body.pos.y - body.radius;
+        if (universe_scale_factor == 1){
+            rect.x = body.pos.x - body.radius;
+            rect.y = body.pos.y - body.radius;
+        }
+        else{
+            rect.x = (body.pos.x - screenWidth/2)*universe_scale_factor + screenWidth/2 - body.radius;
+            rect.y = (body.pos.y - screenWidth/2)*universe_scale_factor + screenWidth/2 - body.radius;
+        }
         rect.w = body.radius * 2 + 1;
         rect.h = body.radius * 2 + 1;
         SDL_SetRenderDrawColor( gRenderer, 255, 0, 0, 0 );
@@ -264,8 +271,18 @@ void Universe::screen_render(float ups, float fps){
     render_text(gRenderer, 10, 10, text, gfont, &rect, &color);
     snprintf(text, MAX_STRING_LEN, "/ %2.2f]", fps);
     render_text(gRenderer, rect.x + 200, 10, text, gfont, &rect, &color);
-    snprintf(text, MAX_STRING_LEN, "Num Bodies:  %lu", bodies.size());
+    snprintf(text, MAX_STRING_LEN, "Num of Bodies:  %lu", bodies.size());
     render_text(gRenderer, 10, 33, text, gfont, &rect, &color);
+
+
+    snprintf(text, MAX_STRING_LEN, "Step <.>");
+    render_text(gRenderer, 10, screenHeight - 53, text, gfont, &rect, &color);
+    snprintf(text, MAX_STRING_LEN, "Start/Stop <Space>: %s", state==running ? "Running" : "Idle");
+    render_text(gRenderer, 10, screenHeight - 33, text, gfont, &rect, &color);
+    snprintf(text, MAX_STRING_LEN, "Centralize <c>: %s", universe_centralize ? "Yes" : "No");
+    render_text(gRenderer, rect.x + 400, screenHeight - 33, text, gfont, &rect, &color);
+    snprintf(text, MAX_STRING_LEN, "Scale <+/->: %2.6f", universe_scale_factor);
+    render_text(gRenderer, rect.x + 250, screenHeight - 33, text, gfont, &rect, &color);
 
     // Update the screen
     SDL_RenderPresent( gRenderer );
@@ -314,19 +331,36 @@ bool Universe::handle_input(){
         }
 
         if (event.type == SDL_KEYDOWN){
-            if (event.key.keysym.sym == SDLK_s){
+            if (event.key.keysym.sym == SDLK_SPACE){
                 if (state == idle){
-                    printf("RUNNING\n");
                     state = running;
                 }
                 else if (state == running){
                     state = idle;
-                    printf("IDLE\n");
                 }
             }
-            if (event.key.keysym.sym == SDLK_SPACE){
+            if (event.key.keysym.sym == SDLK_PERIOD){
                 state = single_step;
-                printf("SINGLE STEP\n");
+            }
+            if (event.key.keysym.sym == SDLK_KP_PLUS){
+                // Calcuate step size depending on current value (eg. step = 0.1 if 0.3, and 0.01 if 0.06, etc.)
+                float step = pow(10,floor(log10(
+                    universe_scale_factor + pow(10,floor(log10(universe_scale_factor)) - 1)
+                )));
+                if (step > 0.1)
+                    step = 0.1;
+                universe_scale_factor += step;
+            }
+            if (event.key.keysym.sym == SDLK_KP_MINUS){
+                float step = pow(10,floor(log10(
+                    universe_scale_factor - pow(10,floor(log10(universe_scale_factor)) - 1)
+                )));
+                if (step > 0.1)
+                    step = 0.1;
+                universe_scale_factor -= step;
+            }
+            if (event.key.keysym.sym == SDLK_c){
+                universe_centralize = !universe_centralize;
             }
         }
     }
@@ -336,8 +370,7 @@ bool Universe::handle_input(){
 
 void Universe::init_random_bodies(){
 
-    uint32_t seed = 80025;
-    srand(seed);
+    srand(gseed);
 
     // std::cout << "---------------------------------\n";
 	// std::cout << "* frequency [0.1 .. 8.0 .. 64.0] \n";
@@ -348,21 +381,21 @@ void Universe::init_random_bodies(){
 
     double size_frequency = 20;
     double size_octaves = 4;
-    const siv::PerlinNoise size_perlin(seed);
+    const siv::PerlinNoise size_perlin(gseed);
     const double size_fx = screenWidth / size_frequency;
     const double size_fy = screenHeight / size_frequency;
 
     double speed_frequency = 20;
     double speed_octaves = 4;
-    const siv::PerlinNoise speed_perlin(seed + 5);
+    const siv::PerlinNoise speed_perlin(gseed + 5);
     const double speed_fx = screenWidth / speed_frequency;
     const double speed_fy = screenHeight / speed_frequency;
 
-    double density = 0.2;
-    double minimim_radius = 2;
-    double maximum_radius = 5;
-    double spacing_multiplier = 7;
-    double speed_multiplier = 20;
+    double density = 0.4;
+    double minimim_radius = 1;
+    double maximum_radius = 3;
+    double spacing_multiplier = 5;
+    double speed_multiplier = 1;
 
     int offset = 30;
     int x = offset, y = offset;

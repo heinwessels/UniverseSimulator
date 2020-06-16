@@ -8,7 +8,7 @@
             "name": "g++ - Build and debug active file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/run17.exe",
+            "program": "${fileDirname}/run.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

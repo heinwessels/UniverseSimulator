@@ -4,6 +4,7 @@
         "cmath": "cpp",
         "complex": "cpp",
         "tuple": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "*.tcc": "cpp"
     }
 }
