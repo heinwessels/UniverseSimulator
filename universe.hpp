@@ -31,9 +31,9 @@ public:
     const bool render = true;
     const float UPS_limit = 300.0;
     const float FPS_limit = 10.0;
-    bool universe_centralize = false;
-    float universe_scale_factor = 1;
-    int take_screenshot_every = 0; // [steps], 0 to disable. Overwrites UPS/FPS settings
+    bool universe_centralize = true;
+    float universe_scale_factor = 0.5;
+    int take_screenshot_every = 100; // [steps], 0 to disable. Overwrites UPS/FPS settings
 
     int screenWidth = 1000;
     int screenHeight = 1000;

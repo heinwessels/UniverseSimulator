@@ -423,11 +423,11 @@ void Universe::init_random_bodies(){
     const double speed_fx = screenWidth / speed_frequency;
     const double speed_fy = screenHeight / speed_frequency;
 
-    double density = 0.2;
-    double minimim_radius = 10;
-    double maximum_radius = 20;
+    double density = 0.1;
+    double minimim_radius = 1;
+    double maximum_radius = 3;
     double spacing_multiplier = 7;
-    double speed_multiplier = 20;
+    double speed_multiplier = 15;
 
     int offset = 30;
     int x = offset, y = offset;
