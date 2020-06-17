@@ -245,8 +245,8 @@ void Universe::screen_render(float ups, float fps){
             rect.h = bodies[i].radius * 2 + 1;
         }
         else{
-            rect.x = (bodies[i].pos.x - screenWidth/2)*universe_scale_factor + screenWidth/2 - bodies[i].radius;
-            rect.y = (bodies[i].pos.y - screenWidth/2)*universe_scale_factor + screenWidth/2 - bodies[i].radius;
+            rect.x = (bodies[i].pos.x - screenWidth/2)*universe_scale_factor + screenWidth/2 - bodies[i].radius*universe_scale_factor;
+            rect.y = (bodies[i].pos.y - screenWidth/2)*universe_scale_factor + screenWidth/2 - bodies[i].radius*universe_scale_factor;
             rect.w = bodies[i].radius * 2 * universe_scale_factor + 1;
             rect.h = bodies[i].radius * 2 * universe_scale_factor + 1;
         }

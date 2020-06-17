@@ -29,7 +29,7 @@ public:
     float time_step = 0.1;
 
     const bool render = true;
-    const float UPS_limit = 100.0;
+    const float UPS_limit = 300.0;
     const float FPS_limit = 10.0;
     bool universe_centralize = false;
     float universe_scale_factor = 1;
