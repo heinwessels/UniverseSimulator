@@ -158,37 +158,45 @@ void Universe::step_through_bodies(){
 
 void Universe::check_for_collisions_and_combine(){
     int i = 0, j = 0;
+    bool set_for_deletion[MAX_BODIES] = {false};
     while(i < num_of_bodies){
         j = i+1;
         while(j < num_of_bodies){
 
-            Vec3<float> delta = bodies[j].pos - bodies[i].pos;
-            float d2 = delta.x*delta.x + delta.y*delta.y;
-            if(d2 < (bodies[i].radius + bodies[j].radius)*(bodies[i].radius + bodies[j].radius)){
-                // Collision! Combine the bodies!
-                // TODO Handle stationary objects correctly
+            if (!set_for_deletion[j]){
 
-                // Calculate the new location using the CoM of the two bodies
-                bodies[i].pos = (bodies[i].pos * bodies[i].mass + bodies[j].pos * bodies[j].mass)
-                                     / (bodies[i].mass + bodies[j].mass);
+                Vec3<float> delta = bodies[j].pos - bodies[i].pos;
+                float d2 = delta.x*delta.x + delta.y*delta.y;
+                if(d2 < (bodies[i].radius + bodies[j].radius)*(bodies[i].radius + bodies[j].radius)){
+                    // Collision! Combine the bodies!
+                    // TODO Handle stationary objects correctly
 
-                // Calculate speed using law of conservation of energy
-                bodies[i].speed = (bodies[i].speed * bodies[i].mass + bodies[j].speed * bodies[j].mass)
-                                    / (bodies[i].mass + bodies[j].mass);
+                    // Calculate the new location using the CoM of the two bodies
+                    bodies[i].pos = (bodies[i].pos * bodies[i].mass + bodies[j].pos * bodies[j].mass)
+                                        / (bodies[i].mass + bodies[j].mass);
 
-                // Calculate the new radius adding the area's of the two bodies
-                bodies[i].radius = sqrt(bodies[i].radius*bodies[i].radius + bodies[j].radius*bodies[j].radius);
-                bodies[i].mass += bodies[j].mass;
+                    // Calculate speed using law of conservation of energy
+                    bodies[i].speed = (bodies[i].speed * bodies[i].mass + bodies[j].speed * bodies[j].mass)
+                                        / (bodies[i].mass + bodies[j].mass);
 
-                // Now erase the body, by overwriting it with the last body in the array, and length - 1
-                bodies[j] = bodies[--num_of_bodies];
+                    // Calculate the new radius adding the area's of the two bodies
+                    bodies[i].radius = sqrt(bodies[i].radius*bodies[i].radius + bodies[j].radius*bodies[j].radius);
+                    bodies[i].mass += bodies[j].mass;
+
+                    // We can't delete the [j] body now, because it will interrupt the for loop. Set for deletion.
+                    set_for_deletion[j] = true;
+                }
             }
-
             j++;
         }
-
         i++;
     }
+
+    // Now delete all collapsed bodies by overwriting it with the last body in the array, and length - 1
+    int num_of_bodies_pers = num_of_bodies; // Keep it for the for-loop
+    for (i = 0; i < num_of_bodies; i++)
+        if(set_for_deletion[i])
+            bodies[i] = bodies[--num_of_bodies];
 }
 
 Vec3<float> Universe::calculate_gravity_force_between(Body& this_body, Body& that_body){
@@ -410,15 +418,15 @@ void Universe::init_random_bodies(){
     const double size_fy = screenHeight / size_frequency;
 
     double speed_frequency = 20;
-    double speed_octaves = 4;
+    double speed_octaves = 3;
     const siv::PerlinNoise speed_perlin(gseed + 5);
     const double speed_fx = screenWidth / speed_frequency;
     const double speed_fy = screenHeight / speed_frequency;
 
     double density = 0.2;
-    double minimim_radius = 1;
-    double maximum_radius = 4;
-    double spacing_multiplier = 5;
+    double minimim_radius = 10;
+    double maximum_radius = 20;
+    double spacing_multiplier = 7;
     double speed_multiplier = 20;
 
     int offset = 30;

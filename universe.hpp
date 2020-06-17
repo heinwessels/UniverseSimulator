@@ -24,7 +24,7 @@ public:
 
     const static int MAX_BODIES = 10000;
 
-    uint32_t gseed = 9025;
+    uint32_t gseed = 82;
 
     float time_step = 0.1;
 

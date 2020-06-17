@@ -12,12 +12,13 @@ class Body{
 
     public:
 
-    bool neglible;
-    bool stationary;
     float mass;         // In kg
     float radius;         // In meter
     Vec3<float> pos;          // In meter
     Vec3<float> speed;        // In m / s
+
+    bool neglible;
+    bool stationary;
 
     Vec3<float> last_force;
     Vec3<float> last_acc;
