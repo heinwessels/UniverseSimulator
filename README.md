@@ -40,3 +40,8 @@ Here is another example of a simulation, this one almost resulting in a circular
 
 
 ![](gifs/first.gif)
+
+## Build
+This was developed on Ubuntu using C++17. The compile command used is:
+
+`clang++-6.0 -g ${fileDirname}/*.cpp -o ${fileDirname}/run.exe -lSDL2 -lSDL2_ttf -std=c++17`
