@@ -14,9 +14,8 @@
 #include "PerlinNoise.hpp"
 
 #ifndef UNIVERSE_HPP
-#define UNIVERSE_HPP
 
-using namespace std;
+#define UNIVERSE_HPP
 
 class Universe {
 
@@ -33,12 +32,11 @@ public:
     const float FPS_limit = 10.0;
     bool universe_centralize = true;
     float universe_scale_factor = 0.5;
-    int take_screenshot_every = 100; // [steps], 0 to disable. Overwrites UPS/FPS settings
+    int take_screenshot_every = 0; // [steps], 0 to disable. Overwrites UPS/FPS settings
 
     int screenWidth = 1000;
     int screenHeight = 1000;
     TTF_Font *gfont;
-    // const char * gfont_path = "FFFFORWA.TTF";
     const char * gfont_path = "PixelSplitter-Bold.ttf";
     int gfont_size = 18;
     SDL_Window *gWindow;

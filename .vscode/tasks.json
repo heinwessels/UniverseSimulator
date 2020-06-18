@@ -12,7 +12,8 @@
                 "${fileDirname}/run.exe",
                 "-lSDL2",
                 "-lSDL2_ttf",
-                "-std=c++17"
+                "-std=c++17",
+                "-O3"
             ],
             "options": {
                 "cwd": "/usr/bin"

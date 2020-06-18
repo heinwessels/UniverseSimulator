@@ -87,7 +87,6 @@ bool Universe::step_universe(){
         prev_ups = (float)take_screenshot_every / fps_duration.count();
     count_total_updates += count_updates - 1;
 
-
     // If the amount of bodies is low enough, center the universe
     if(universe_centralize){
         center_universe_around(calculate_universe_com());
