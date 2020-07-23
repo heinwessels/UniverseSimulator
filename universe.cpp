@@ -410,27 +410,29 @@ void Universe::init_random_bodies(){
 	// std::cout << "---------------------------------\n";
     // perlin.accumulatedOctaveNoise2D_0_1(x / fx, y / fy, octaves)
 
-    double size_frequency = 20;
+    double size_frequency = 3;
     double size_octaves = 4;
     const siv::PerlinNoise size_perlin(gseed);
     const double size_fx = screenWidth / size_frequency;
     const double size_fy = screenHeight / size_frequency;
 
-    double speed_frequency = 20;
+    double speed_frequency = 3;
     double speed_octaves = 3;
     const siv::PerlinNoise speed_perlin(gseed + 5);
     const double speed_fx = screenWidth / speed_frequency;
     const double speed_fy = screenHeight / speed_frequency;
 
-    double density = 0.1;
+    double density = 0.05;
     double minimim_radius = 1;
-    double maximum_radius = 3;
+    double maximum_radius = 4;
     double spacing_multiplier = 7;
-    double speed_multiplier = 15;
+    double speed_multiplier = 100;
 
     int offset = 30;
-    int x = offset, y = offset;
-    while (y < screenHeight - offset){
+    int x_start = -1000, x_end = 2000;
+    int y_start = -1000, y_end = 2000;
+    int x = x_start, y = y_start;
+    while (y < y_end){
 
         double size_randomizer = size_perlin.normalizedOctaveNoise2D(x / size_fx, y / size_fy, size_octaves);
         double radius = (size_randomizer + 1) * maximum_radius / 2;
@@ -459,8 +461,8 @@ void Universe::init_random_bodies(){
         }
 
         x += spacing_multiplier * radius;
-        if(x >= screenWidth - offset){
-            x = offset;
+        if(x >= x_end){
+            x = x_start;
             y += radius * spacing_multiplier;
         }
     }

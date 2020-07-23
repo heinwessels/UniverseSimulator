@@ -3,7 +3,7 @@
 #include "vec3.hpp"
 #include "body.hpp"
 #include <stdio.h>
-#include<iostream>
+#include <iostream>
 #include <cmath>
 #include <ctime>
 
@@ -21,18 +21,18 @@ class Universe {
 
 public:
 
-    const static int MAX_BODIES = 10000;
+    const static int MAX_BODIES = 100000;
 
-    uint32_t gseed = 82;
+    uint32_t gseed = 802;
 
     float time_step = 0.1;
 
     const bool render = true;
-    const float UPS_limit = 300.0;
-    const float FPS_limit = 10.0;
+    const float UPS_limit = 10000.0;
+    const float FPS_limit = 5.0;
     bool universe_centralize = true;
     float universe_scale_factor = 0.5;
-    int take_screenshot_every = 0; // [steps], 0 to disable. Overwrites UPS/FPS settings
+    int take_screenshot_every = 5; // [steps], 0 to disable. Overwrites UPS/FPS settings
 
     int screenWidth = 1000;
     int screenHeight = 1000;

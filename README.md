@@ -1,3 +1,5 @@
+**Please Note:** This simulation was rewritten which can render circles, and has a much better name. It's called Universe Simulator 2, and can be found [here](https://github.com/heinwessels/UniverseSimulator2).
+
 # Universe Simulator
 This is a universe simulator I'm building to learn C++, and my first real project in this language. It has a `n`-body gravitation simulation, which combines bodies on collision. My goal is to start with a random "gas cloud" and end up with multiple bodies orbiting a larger body. The secondary goal is that the system should end up with circular orbits, and not just orbits with high eccentricity. If it creates twin orbiting suns like Tatooine has, then that would be an amazing bonus.
 
